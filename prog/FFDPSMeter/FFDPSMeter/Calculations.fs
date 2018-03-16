@@ -51,12 +51,12 @@
                     let activeskill =
                         match tick.ActiveSkill with
                         | None -> None
-                        | Some s -> Some <| (combo >> buffs >> debuffs) s
+                        | Some s -> Some <| (buffs >> debuffs >> combo) s
 
                     let dotPotency =
                         tick.ActiveDoTs
                         |> List.fold (fun s (v, (start, _)) ->
-                            if (index - start) % 30 = 0 then
+                            if index > start && (index - start) % 30 = 0 then
                                 s + v.Potency
                             else
                                 0
@@ -71,7 +71,15 @@
                         | Some active -> active.Potency
 
                     if dotPotency + aaPotency + activePotency > 0 then
-                        printfn "DPS (tick %d)\tAutoAttack: %d\tDoT: %d\tSkill: %d\tDamage: %d" index aaPotency dotPotency activePotency dps
+                        let buffsPrint =
+                            tick.ActiveBuffs
+                            |> List.map (fun (b, i) -> sprintf "(%s, %d, %d)" b.Name b.Stacks i)
+                        let relativeDPS =
+                            if index = 0 then 
+                                0
+                            else
+                                (dps / (index / 10))
+                        printfn "DPS (tick %d)\tAutoAttack: %d\tDoT: %d\tSkill: %d\tDamage: %d\tDPS: %d" index aaPotency dotPotency activePotency dps relativeDPS
                     dps + dotPotency + aaPotency + activePotency
                 ) 0
                 |> fun x -> x / time
