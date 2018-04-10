@@ -4,6 +4,8 @@
         open Skills
         open Model
         open Calculations
+        open MCModel
+        open MCModel2
 
         let skills = 
             [
@@ -151,20 +153,57 @@
 
         [<EntryPoint>]
         let main argv = 
-            //printfn "%A" rotation
-            match DragoonSetrRotation with
-            | Rotation (rotation, job) ->
-                rotation
-                |> List.indexed
-                |> List.iter (fun (i, s) ->
-                    let combo =
-                        match s.ActiveCombo with
-                        | None -> "None"
-                        | Some (c, _) -> sprintf "%s to %s" c.Name c.Target
-                    match s.ActiveSkill with
-                    | None -> ()
-                    | Some s -> printf "%d:\tSkill: %20s\tPotency: %d\tCombo: %s\n" i s.Name s.Potency combo
-                )
-                printfn "MP: %d, TP: %d" job.MP job.TP
-            printfn "DPS: %d" (ToDPS DragoonSetrRotation)
+            //match DragoonSetrRotation with
+            //| Rotation (rotation, job) ->
+            //    rotation
+            //    |> List.indexed
+            //    |> List.iter (fun (i, s) ->
+            //        let combo =
+            //            match s.ActiveCombo with
+            //            | None -> "None"
+            //            | Some (c, _) -> sprintf "%s to %s" c.Name c.Target
+            //        match s.ActiveSkill with
+            //        | None -> ()
+            //        | Some s -> printf "%d:\tSkill: %20s\tPotency: %d\tCombo: %s\n" i s.Name s.Potency combo
+            //    )
+            //    printfn "MP: %d, TP: %d" job.MP job.TP
+            //printfn "DPS: %d" (ToDPS DragoonSetrRotation)
+            let job = Dragoon.Job
+            let skillset = 
+                [
+                    Dragoon.HeavyThrust
+                    Dragoon.BattleLitany
+                    Dragoon.BloodForBlood
+                    Dragoon.BloodOfTheDragon
+                    Dragoon.ChaosThrust
+                    Dragoon.Disembowel
+                    Dragoon.DoomSpike
+                    Dragoon.DragonfireDive
+                    Dragoon.DragonSight
+                    Dragoon.FangAndClaw
+                    Dragoon.FullThrust
+                    Dragoon.Geirskogul
+                    Dragoon.ImpulseDrive
+                    Dragoon.Jump
+                    Dragoon.LifeSurge
+                    Dragoon.MirageDive
+                    Dragoon.Nastrond
+                    Dragoon.PiercingTalon
+                    Dragoon.SonicThrust
+                    Dragoon.SpineshatterDive
+                    Dragoon.TrueThrust
+                    Dragoon.VorpalThrust
+                    Dragoon.WheelingThrust
+                ]
+            let miniskillset =
+                [
+                    Dragoon.HeavyThrust
+                    Dragoon.TrueThrust
+                    Dragoon.VorpalThrust
+                ]
+
+            let Q, _, _ = mcControlImportanceSampling (job, skillset) 1800 (fromRotation (Rotation.empty job)) 100 (createRandomPolicy (skillset.Length)) None
+            printfn "%A" Q
+            printfn "\n Simulation by Q policy: "
+            runPolicy (job, skillset) (createGreedyPolicy Q (skillset.Length)) 1800 None
             0

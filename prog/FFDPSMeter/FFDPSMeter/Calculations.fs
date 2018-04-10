@@ -10,7 +10,7 @@
                 Rotation.add skill rotation
             ) (Rotation.empty job)
 
-        let ToDPS (rotation: Rotation) : int =
+        let ToDamage (rotation: Rotation) (print: bool) : int =
             match rotation with
             | Rotation (rotation, job) ->
                 let time = (List.length rotation) / 10
@@ -69,17 +69,25 @@
                         match activeskill with
                         | None -> 0
                         | Some active -> active.Potency
-
-                    if dotPotency + aaPotency + activePotency > 0 then
-                        let buffsPrint =
-                            tick.ActiveBuffs
-                            |> List.map (fun (b, i) -> sprintf "(%s, %d, %d)" b.Name b.Stacks i)
-                        let relativeDPS =
-                            if index = 0 then 
-                                0
-                            else
-                                (dps / (index / 10))
-                        printfn "DPS (tick %d)\tAutoAttack: %d\tDoT: %d\tSkill: %d\tDamage: %d\tDPS: %d" index aaPotency dotPotency activePotency dps relativeDPS
+                    if print then
+                        if dotPotency + aaPotency + activePotency > 0 then
+                            let buffsPrint =
+                                tick.ActiveBuffs
+                                |> List.map (fun (b, i) -> sprintf "(%s, %d, %d)" b.Name b.Stacks i)
+                            let relativeDPS =
+                                if index < 10 then 
+                                    0
+                                else
+                                    (dps / (index / 10))
+                            printfn "DPS (tick %d)\tAutoAttack: %d\tDoT: %d\tSkill: %d\tDamage: %d\tDPS: %d" index aaPotency dotPotency activePotency dps relativeDPS
                     dps + dotPotency + aaPotency + activePotency
                 ) 0
-                |> fun x -> x / time
+
+        let ToDPS (rotation: Rotation) (print: bool) : int =
+            let time =
+                match rotation with
+                | Rotation (rotation, job) ->
+                    (List.length rotation) / 10
+            ToDamage rotation print
+            |> fun x -> 
+                if time = 0 then 0 else x / time

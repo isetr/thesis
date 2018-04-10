@@ -58,6 +58,7 @@
     <Compile Include="Model.fs" />
     <Compile Include="Skills.fs" />
     <Compile Include="Calculations.fs" />
+    <Compile Include="MCModel.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />

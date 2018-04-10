@@ -59,6 +59,7 @@
                 Target          : string
                 Effect          : Skill -> Skill
                 DistruptedByGCD : bool
+                NotFirst        : bool
             }
         and Job =
             {
@@ -70,16 +71,90 @@
                 TP          : int
             }
 
+        type GCD =
+            | Cooldown of int
+            | Available
+        
+        [<CustomEquality; NoComparison>]
         type Tick =
             {
                 ActiveBuffs         : (Buff * int) list
                 ActiveDebuffs       : (Buff * int) list
                 OGCDTimers          : (Skill * int) list
-                GCDtick             : int
+                GCDtick             : GCD
                 ActiveSkill         : Skill option
                 ActiveDoTs          : (Skill * (int * int)) list
                 ActiveCombo         : (Combo * int) option
             }
+
+            override l.Equals r =
+                match r with
+                | :? Tick as r ->
+                    let lBuffs =
+                        l.ActiveBuffs
+                        |> List.map (fun (b, _) -> b.Name)
+                        |> List.sort
+                    let rBuffs =
+                        r.ActiveBuffs
+                        |> List.map (fun (b, _) -> b.Name)
+                        |> List.sort
+                    let lOGCD = 
+                        l.OGCDTimers
+                        |> List.map (fun (s, _) -> s.Name)
+                        |> List.sort
+                    let rOGCD = 
+                        r.OGCDTimers
+                        |> List.map (fun (s, _) -> s.Name)
+                        |> List.sort
+                    let lSkill = 
+                        match l.ActiveSkill with 
+                        | Some s -> s.Name
+                        | None -> ""
+                    let rSkill = 
+                        match r.ActiveSkill with 
+                        | Some s -> s.Name
+                        | None -> ""
+                    let lDots =
+                        l.ActiveDoTs
+                        |> List.map (fun (s, _) -> s.Name)
+                        |> List.sort
+                    let rDots =
+                        r.ActiveDoTs
+                        |> List.map (fun (s, _) -> s.Name)
+                        |> List.sort
+                    let lCombo = 
+                        match l.ActiveCombo with 
+                        | Some (s, _) -> s.Name
+                        | None -> ""
+                    let rCombo = 
+                        match r.ActiveCombo with 
+                        | Some (s, _) -> s.Name
+                        | None -> ""
+                    let lGCD =
+                        match l.GCDtick with
+                        | Available -> 0
+                        | Cooldown t -> t
+                    let rGCD =
+                        match r.GCDtick with
+                        | Available -> 0
+                        | Cooldown t -> t
+
+                    lBuffs = rBuffs &&
+                    lOGCD = rOGCD &&
+                    lSkill = rSkill &&
+                    lDots = rDots &&
+                    lCombo = rCombo &&
+                    lGCD = rGCD
+                | _ -> false
+
+            override this.GetHashCode () = 
+                hash 
+                <| (
+                    this.ActiveBuffs.Length, 
+                    this.OGCDTimers.Length,
+                    this.GCDtick,
+                    this.ActiveDoTs.Length
+                )
 
         type Rotation = 
             | Rotation of (Tick list) * Job
@@ -90,7 +165,7 @@
                     ActiveDebuffs = []
                     ActiveSkill = None
                     ActiveDoTs = []
-                    GCDtick = 0
+                    GCDtick = Available
                     OGCDTimers = []
                     ActiveCombo = None
                 }], job)
@@ -192,6 +267,14 @@
                             |> List.filter (fun (_, tick) ->
                                 tick > lastindex + 1
                             )
+                        let gcd =
+                            match last.GCDtick with
+                            | Available -> last.GCDtick
+                            | Cooldown t ->
+                                if t < lastindex + 1 then
+                                    last.GCDtick
+                                else
+                                    Available
 
                         let rec addDummy (ticklist: Tick list) (n: int) (job: Job) =
                             if n > 0 then
@@ -251,13 +334,21 @@
                                             None
                                         else
                                             combo
+                                let gcd =
+                                    match last.GCDtick with
+                                    | Available -> last.GCDtick
+                                    | Cooldown t ->
+                                        if t < lastindex + 1 then
+                                            last.GCDtick
+                                        else
+                                            Available
                                 let nextTick =
                                     {
                                         ActiveBuffs = activeBuffs
                                         ActiveDebuffs = activeDebuffs
                                         ActiveSkill = None
                                         ActiveDoTs = activeDots
-                                        GCDtick = last.GCDtick
+                                        GCDtick = gcd
                                         OGCDTimers = ogcdTimers
                                         ActiveCombo = activeCombo
                                     }
@@ -422,7 +513,7 @@
                                             ActiveDebuffs = activeDebuffs
                                             ActiveSkill = Some skill
                                             ActiveDoTs = activeDots
-                                            GCDtick = lastindex + 1 + job.Speed
+                                            GCDtick = Cooldown (lastindex + 1 + job.Speed)
                                             OGCDTimers = ogcdTimers
                                             ActiveCombo = activeCombo
                                         }
@@ -433,25 +524,35 @@
                                         | Time d -> d
                                     let job, ticks = addDummy (List.append ticks [nextTick]) casttime job
                                     Rotation (ticks, job)
-                            if last.GCDtick < lastindex + 1 then
+                            let gcdTick =
+                                match last.GCDtick with
+                                | Cooldown t -> t
+                                | Available -> 0
+                            if gcdTick < lastindex + 1 then
                                 match skill.Condition with
                                 | None -> addSkill
                                 | Some cond when cond (activeBuffs |> List.map fst) -> addSkill
                                 | Some _ -> rotation
                             else 
-                                let dummies = last.GCDtick - lastindex + 1
+                                let dummies = gcdTick - lastindex + 1
                                 let ticks = ticks |> List.map snd
                                 let job, ticks = addDummy ticks dummies job
                                 Rotation.add skill (Rotation (ticks, job))
                         | OffGlobalCooldown cd ->
                             match List.tryFind (fun ((s, _): Skill * int) -> s.Name = skill.Name) ogcdTimers with
                             | Some (_, tick) -> 
-                                if tick < last.GCDtick then
+                                let gcdTick =
+                                    match last.GCDtick with
+                                    | Cooldown t -> t
+                                    | Available -> 0
+                                if tick < gcdTick then
                                     let ticks = ticks |> List.map snd
-                                    let job, ticks = addDummy ticks (last.GCDtick - tick) job
+                                    let job, ticks = addDummy ticks (gcdTick - tick) job
                                     Rotation.add skill (Rotation (ticks, job))
                                 else
-                                    rotation
+                                    let ticks = ticks |> List.map snd
+                                    let job, ticks = addDummy ticks (tick - lastindex) job
+                                    Rotation.add skill (Rotation (ticks, job))
                             | None -> 
                                 let addSkill =
                                     let job = updateJob job skill
@@ -595,7 +696,7 @@
                                                 ActiveDebuffs = activeDebuffs
                                                 ActiveSkill = Some skill
                                                 ActiveDoTs = activeDots
-                                                GCDtick = last.GCDtick
+                                                GCDtick = gcd
                                                 OGCDTimers = ogcdTimers
                                                 ActiveCombo = activeCombo
                                             }

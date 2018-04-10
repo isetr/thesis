@@ -108,6 +108,7 @@
                         Target = "Combo 2"
                         Effect = (fun (s: Skill) -> {s with Potency = int ((float s.Potency) * 1.1)})
                         DistruptedByGCD = true
+                        NotFirst = false
                     }
                 {
                     Name            = "Combo 1"
@@ -128,6 +129,7 @@
                         Target = "Combo 3"
                         Effect = (fun (s: Skill) -> {s with Potency = s.Potency * 2})
                         DistruptedByGCD = true
+                        NotFirst = false
                     }
                 {
                     Name            = "Combo 2"
@@ -184,6 +186,7 @@
                         Target = "Vorpal Thrust"
                         Effect = (fun s -> {s with Potency = 250})
                         DistruptedByGCD = true
+                        NotFirst = false
                     }
                 {
                     Name = "True Thrust"
@@ -204,6 +207,7 @@
                         Target = "Full Thrust"
                         Effect = (fun s -> {s with Potency = 450})
                         DistruptedByGCD = true
+                        NotFirst = true
                     }
                 {
                     Name = "Vorpal Thrust"
@@ -224,6 +228,7 @@
                         Target = "Disembowel"
                         Effect = (fun s -> {s with Potency = 240})
                         DistruptedByGCD = true
+                        NotFirst = false
                     }
                 {
                     Name = "Impulse Drive"
@@ -366,6 +371,7 @@
                         Target = "Chaos Thrust"
                         Effect = (fun s -> {s with Potency = 280})
                         DistruptedByGCD = true
+                        NotFirst = true
                     }
                 let buff : Buff =
                     {
@@ -483,6 +489,7 @@
                         Target = "Sonic Thrust"
                         Effect = (fun (s: Skill) -> {s with Potency = 180})
                         DistruptedByGCD = true
+                        NotFirst = true
                     }
                 {
                     Name = "Doom Spike"
