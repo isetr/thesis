@@ -4,101 +4,7 @@
         open Skills
         open Model
         open Calculations
-        open MCModel
         open MCModel2
-
-        let skills = 
-            [
-                TestJob.TestDoT
-                TestJob.TestOGCDSkill
-                TestJob.TestOGCDSkill2
-                TestJob.TestSkill
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.TestSkill
-                TestJob.TestOGCDSkill
-                TestJob.TestOGCDSkill
-                TestJob.TestOGCDSkill2
-                TestJob.TestSkill
-                TestJob.TestOGCDSkill2
-            ]
-
-        let skillsTPdeplate =
-            [
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.GCDWithBuff
-                TestJob.TestSkill
-                TestJob.TestSkill
-                TestJob.TestSkill
-            ]
-
-        let comboSkills =
-            [
-                TestJob.GCDWithBuff
-                TestJob.TestDoT
-                TestJob.Combo1
-                TestJob.Combo2
-                TestJob.Combo3
-                TestJob.Combo1
-                TestJob.Combo2
-                TestJob.Combo3
-                TestJob.Combo1
-                TestJob.Combo2
-                TestJob.TestOGCDSkill
-                TestJob.Combo3
-            ]
-            
-        let rotation = Calculations.ToRotation comboSkills TestJob.Job
-
-        let DragoonSkills =
-            [
-                Dragoon.HeavyThrust
-                Dragoon.BloodForBlood
-                Dragoon.ImpulseDrive
-                Dragoon.Disembowel
-                Dragoon.ChaosThrust
-                Dragoon.TrueThrust
-                Dragoon.VorpalThrust
-                Dragoon.LifeSurge
-                Dragoon.FullThrust
-            ]
-        let DragoonRotation = Calculations.ToRotation DragoonSkills Dragoon.Job
-
-        let BotDSkills =
-            [
-                Dragoon.BloodOfTheDragon
-                Dragoon.Jump
-                Dragoon.MirageDive
-                Dragoon.SpineshatterDive
-                Dragoon.MirageDive
-                Dragoon.DoomSpike
-                Dragoon.SonicThrust
-                Dragoon.DoomSpike
-                Dragoon.SonicThrust
-                Dragoon.DoomSpike
-                Dragoon.SonicThrust
-                Dragoon.DoomSpike
-                Dragoon.SonicThrust
-                Dragoon.DoomSpike
-                Dragoon.SonicThrust
-                Dragoon.Jump
-                Dragoon.MirageDive
-                Dragoon.Geirskogul
-                Dragoon.Nastrond
-            ]
-        let BotDRotation = Calculations.ToRotation BotDSkills Dragoon.Job
 
         let DragoonSetrSkills =
             [
@@ -129,49 +35,36 @@
                 Dragoon.Disembowel
                 Dragoon.ChaosThrust
                 Dragoon.Jump
+                Dragoon.Invigorate
                 Dragoon.WheelingThrust
                 Dragoon.MirageDive
                 Dragoon.FangAndClaw
                 Dragoon.Geirskogul
                 Dragoon.Nastrond
+                //Dragoon.Invigorate
             ]
         let DragoonSetrRotation = Calculations.ToRotation DragoonSetrSkills Dragoon.Job
-
-        let ShortWheelingFangSkills =
-            [
-                Dragoon.BloodOfTheDragon
-                Dragoon.HeavyThrust
-                Dragoon.ImpulseDrive
-                Dragoon.Disembowel
-                Dragoon.ChaosThrust
-                Dragoon.WheelingThrust
-                Dragoon.FangAndClaw
-                Dragoon.WheelingThrust
-                Dragoon.FangAndClaw
-            ]
-        let ShortWheelingFangRotation = Calculations.ToRotation ShortWheelingFangSkills Dragoon.Job
-
+        
         [<EntryPoint>]
         let main argv = 
             //match DragoonSetrRotation with
             //| Rotation (rotation, job) ->
             //    rotation
             //    |> List.indexed
-            //    |> List.iter (fun (i, s) ->
+            //    |> List.iter (fun (i, tick) ->
             //        let combo =
-            //            match s.ActiveCombo with
+            //            match tick.ActiveCombo with
             //            | None -> "None"
-            //            | Some (c, _) -> sprintf "%s to %s" c.Name c.Target
-            //        match s.ActiveSkill with
+            //            | Some (c, _) -> c.Target
+            //        match tick.ActiveSkill with
             //        | None -> ()
             //        | Some s -> printf "%d:\tSkill: %20s\tPotency: %d\tCombo: %s\n" i s.Name s.Potency combo
             //    )
             //    printfn "MP: %d, TP: %d" job.MP job.TP
-            //printfn "DPS: %d" (ToDPS DragoonSetrRotation)
+            //printfn "DPS: %d" (ToDPS DragoonSetrRotation true)
             let job = Dragoon.Job
             let skillset = 
                 [
-                    Dragoon.HeavyThrust
                     Dragoon.BattleLitany
                     Dragoon.BloodForBlood
                     Dragoon.BloodOfTheDragon
@@ -183,7 +76,9 @@
                     Dragoon.FangAndClaw
                     Dragoon.FullThrust
                     Dragoon.Geirskogul
+                    Dragoon.HeavyThrust
                     Dragoon.ImpulseDrive
+                    Dragoon.Invigorate
                     Dragoon.Jump
                     Dragoon.LifeSurge
                     Dragoon.MirageDive
@@ -195,15 +90,31 @@
                     Dragoon.VorpalThrust
                     Dragoon.WheelingThrust
                 ]
-            let miniskillset =
-                [
-                    Dragoon.HeavyThrust
-                    Dragoon.TrueThrust
-                    Dragoon.VorpalThrust
-                ]
 
-            let Q, _, _ = mcControlImportanceSampling (job, skillset) 1800 (fromRotation (Rotation.empty job)) 100 (createRandomPolicy (skillset.Length)) None
-            printfn "%A" Q
-            printfn "\n Simulation by Q policy: "
-            runPolicy (job, skillset) (createGreedyPolicy Q (skillset.Length)) 1800 None
+            printf "\nEpisodes: "
+            let episodes = int <| System.Console.ReadLine ()
+            printf "\nGenerations: "
+            let generations = int <| System.Console.ReadLine ()
+            printf "\nSample: "
+            let sample = int <| System.Console.ReadLine ()
+
+            //let Q, _ = mcControlImportanceSampling (job, skillset) 1800 (fromRotation (Rotation.empty job)) 30 (createRandomPolicy (skillset.Length)) 0.9 None
+            let geneticPolicy (generations: int) (startingPolicy: State -> float list) (dur: int) (sampling: int) =
+                List.init generations id
+                |> List.fold (fun s i ->
+                    let startT = System.DateTime.Now
+                    let epsilon = 1. / (5. * System.Math.Log (float i + 5.))
+                    if i % 1 = 0 then printfn "\nGeneration #%d\t | Epsilon:\t%f" i (if i = 0 then 0. else epsilon)
+                    let Q, _ = mcControlImportanceSampling (job, skillset) dur (fromRotation (Rotation.empty job)) sampling s 0.8 None
+                    let policy = (createEpsilonGreedyPolicy Q (skillset.Length) epsilon)
+                    let endT = System.DateTime.Now
+                    printfn "\nGeneration time: %A" (endT - startT)
+                    if sample > 0 && i % sample = 0 then
+                        runPolicy (job, skillset) policy dur None
+                    policy
+                ) startingPolicy
+            //printfn "%A" Q
+            //printfn "\n Simulation by Q policy: "
+            runPolicy (job, skillset) (geneticPolicy generations (createRandomPolicy (skillset.Length)) 1800 episodes) 1800 None
+            System.Console.ReadKey () |> ignore
             0

@@ -1,0 +1,78 @@
+Optimal rotation:
+
+Vorpal Thrust   	16.390000       ([], [], 1, [], None, 1000, 5880)
+Chaos Thrust    	11.231462       ([], [], 0, [], None, 950, 5880)
+Heavy Thrust    	11.332222       ([], [], 0, [], None, 930, 5880)
+Full Thrust     	9.098889        (["Heavy Thrust"], [], 0, [], None, 900, 5880)
+Full Thrust     	8.702280        (["Heavy Thrust"], [], 0, [], None, 850, 5880)
+Spineshatter Jump       10.370258       (["Heavy Thrust"], [], 0, [], None, 860, 5880)
+Blood of the Dragons    9.480894        (["Dive Ready"; "Heavy Thrust"], ["Spineshatter Jump"], 0, [], None, 890, 5880)
+True Thrust     	9.806275        (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Spineshatter Jump"], 1, [], None, 890, 5880)
+Chaos Thrust    	9.564286        (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Spineshatter Jump"], 0, [], Some "Vorpal Thrust", 830, 5880)
+Jump    		11.107097       (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Spineshatter Jump"], 0, [], None, 810, 5880)
+Heavy Thrust    	11.106376       (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Jump"; "Spineshatter Jump"], 0, [], None, 840, 5880)
+Impulse Drive   	10.933235       (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Jump"; "Spineshatter Jump"], 0, [], None, 780, 5880)
+Full Thrust     	10.384671       (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Jump"; "Spineshatter Jump"], 0, [], Some "Disembowel", 750, 5880)
+Piercing Talon  	9.982509        (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Jump"; "Spineshatter Jump"], 0, [], None, 730, 5880)
+Full Thrust     	9.566366        (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Jump"; "Spineshatter Jump"], 0, [], None, 630, 5880)
+True Thrust     	9.359389        (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"], ["Blood of the Dragons"; "Jump"; "Spineshatter Jump"], 0, [], None, 610, 5880)
+Dragon Sight    	8.990526        (["Heavy Thrust"], ["Blood of the Dragons"; "Jump"; "Spineshatter Jump"], 0, [], Some "Vorpal Thrust", 580, 5880)
+Chaos Thrust    	8.903665        (["Dragon Sight"; "Heavy Thrust"], ["Blood of the Dragons"; "Dragon Sight"; "Jump"; "Spineshatter Jump"], 0, [], Some "Vorpal Thrust", 580, 5880)
+Doom Spike      	8.737550        (["Dragon Sight"; "Heavy Thrust"], ["Blood of the Dragons"; "Dragon Sight"; "Jump"; "Spineshatter Jump"], 0, [], None, 530, 5880)
+Piercing Talon  	8.527008        (["Dragon Sight"; "Heavy Thrust"], ["Blood of the Dragons"; "Dragon Sight"; "Jump"; "Spineshatter Jump"], 0, [], Some "Sonic Thrust", 440, 5880)
+Vorpal Thrust   	8.282395        (["Dragon Sight"; "Heavy Thrust"], ["Blood of the Dragons"; "Dragon Sight"; "Jump"; "Spineshatter Jump"], 0, [], None, 340, 5880)
+Full Thrust     	8.050459        (["Dragon Sight"; "Heavy Thrust"], ["Blood of the Dragons"; "Dragon Sight"; "Jump"; "Spineshatter Jump"], 0, [], None, 320, 5880)
+Vorpal Thrust   	7.829171        (["Dragon Sight"; "Heavy Thrust"], ["Blood of the Dragons"; "Dragon Sight"; "Jump"; "Spineshatter Jump"], 0, [], None, 300, 5880)
+Blood for Blood 	7.592095        (["Dragon Sight"; "Heavy Thrust"], ["Blood of the Dragons"; "Dragon Sight"; "Spineshatter Jump"], 0, [], None, 280, 5880)
+Disembowel      	7.630848        (["Blood for Blood"; "Dragon Sight"], ["Blood for Blood"; "Blood of the Dragons"; "Dragon Sight"; "Spineshatter Jump"], 0, [], None, 280, 5880)
+Vorpal Thrust   	7.278499        (["Blood for Blood"; "Dragon Sight"], ["Blood for Blood"; "Blood of the Dragons"; "Dragon Sight"; "Spineshatter Jump"], 0, [], None, 260, 5880)
+Jump    		7.560606        (["Blood for Blood"], ["Blood for Blood"; "Blood of the Dragons"; "Dragon Sight"; "Spineshatter Jump"], 0, [], None, 210, 5880)
+True Thrust     	7.495005        (["Blood for Blood"; "Dive Ready"], ["Blood for Blood"; "Blood of the Dragons"; "Dragon Sight"; "Jump";  "Spineshatter Jump"], 0, [], None, 240, 5880)
+Piercing Talon  	7.298550        (["Blood for Blood"; "Dive Ready"], ["Blood for Blood"; "Blood of the Dragons"; "Dragon Sight"; "Jump";  "Spineshatter Jump"], 0, [], Some "Vorpal Thrust", 180, 5880)
+
+DPS (tick 0)    AutoAttack: 98  DoT: 0  Skill: 0        Damage: 0       DPS: 0
+DPS (tick 1)    AutoAttack: 0   DoT: 0  Skill: 100      Damage: 98      DPS: 0
+DPS (tick 27)   AutoAttack: 0   DoT: 0  Skill: 140      Damage: 198     DPS: 99
+DPS (tick 30)   AutoAttack: 98  DoT: 0  Skill: 0        Damage: 338     DPS: 112
+DPS (tick 53)   AutoAttack: 0   DoT: 0  Skill: 209      Damage: 436     DPS: 87
+DPS (tick 60)   AutoAttack: 107 DoT: 0  Skill: 0        Damage: 645     DPS: 107
+DPS (tick 79)   AutoAttack: 0   DoT: 0  Skill: 110      Damage: 752     DPS: 107
+DPS (tick 90)   AutoAttack: 107 DoT: 0  Skill: 0        Damage: 862     DPS: 95
+DPS (tick 105)  AutoAttack: 0   DoT: 0  Skill: 110      Damage: 969     DPS: 96
+DPS (tick 116)  AutoAttack: 0   DoT: 0  Skill: 231      Damage: 1079    DPS: 98
+DPS (tick 120)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 1310    DPS: 109
+DPS (tick 138)  AutoAttack: 0   DoT: 0  Skill: 176      Damage: 1417    DPS: 109
+DPS (tick 150)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 1593    DPS: 106
+DPS (tick 164)  AutoAttack: 0   DoT: 0  Skill: 154      Damage: 1700    DPS: 106
+DPS (tick 175)  AutoAttack: 0   DoT: 0  Skill: 343      Damage: 1854    DPS: 109
+DPS (tick 180)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 2197    DPS: 122
+DPS (tick 190)  AutoAttack: 0   DoT: 0  Skill: 209      Damage: 2304    DPS: 121
+DPS (tick 210)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 2513    DPS: 119
+DPS (tick 216)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 2620    DPS: 124
+DPS (tick 240)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 2840    DPS: 118
+DPS (tick 242)  AutoAttack: 0   DoT: 0  Skill: 110      Damage: 2947    DPS: 122
+DPS (tick 268)  AutoAttack: 0   DoT: 0  Skill: 132      Damage: 3057    DPS: 117
+DPS (tick 270)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 3189    DPS: 118
+DPS (tick 294)  AutoAttack: 0   DoT: 0  Skill: 110      Damage: 3296    DPS: 113
+DPS (tick 300)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 3406    DPS: 113
+DPS (tick 320)  AutoAttack: 0   DoT: 0  Skill: 176      Damage: 3513    DPS: 109
+DPS (tick 330)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 3689    DPS: 111
+DPS (tick 346)  AutoAttack: 0   DoT: 0  Skill: 169      Damage: 3796    DPS: 111
+DPS (tick 360)  AutoAttack: 117 DoT: 0  Skill: 0        Damage: 3965    DPS: 110
+DPS (tick 372)  AutoAttack: 0   DoT: 0  Skill: 169      Damage: 4082    DPS: 110
+DPS (tick 390)  AutoAttack: 117 DoT: 0  Skill: 0        Damage: 4251    DPS: 109
+DPS (tick 398)  AutoAttack: 0   DoT: 0  Skill: 145      Damage: 4368    DPS: 112
+DPS (tick 420)  AutoAttack: 117 DoT: 0  Skill: 0        Damage: 4513    DPS: 107
+DPS (tick 424)  AutoAttack: 0   DoT: 0  Skill: 121      Damage: 4630    DPS: 110
+DPS (tick 450)  AutoAttack: 117 DoT: 0  Skill: 121      Damage: 4751    DPS: 105
+DPS (tick 476)  AutoAttack: 0   DoT: 0  Skill: 121      Damage: 4989    DPS: 106
+DPS (tick 480)  AutoAttack: 117 DoT: 0  Skill: 0        Damage: 5110    DPS: 106
+DPS (tick 502)  AutoAttack: 0   DoT: 0  Skill: 125      Damage: 5227    DPS: 104
+DPS (tick 510)  AutoAttack: 123 DoT: 0  Skill: 0        Damage: 5352    DPS: 104
+DPS (tick 528)  AutoAttack: 0   DoT: 0  Skill: 125      Damage: 5475    DPS: 105
+DPS (tick 539)  AutoAttack: 0   DoT: 0  Skill: 276      Damage: 5600    DPS: 105
+DPS (tick 540)  AutoAttack: 112 DoT: 0  Skill: 0        Damage: 5876    DPS: 108
+DPS (tick 554)  AutoAttack: 0   DoT: 0  Skill: 184      Damage: 5988    DPS: 108
+DPS (tick 570)  AutoAttack: 112 DoT: 0  Skill: 0        Damage: 6172    DPS: 108
+DPS (tick 580)  AutoAttack: 0   DoT: 0  Skill: 138      Damage: 6284    DPS: 108
+DPS: 108

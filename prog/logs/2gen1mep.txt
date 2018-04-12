@@ -1,0 +1,113 @@
+Optimal rotation:
+Heavy Thrust    25.412778       ([], [], 1, [], None, 1000, 5800)
+Piercing Talon  14.065088       (["Heavy Thrust"], [], 0, [], None, 900, 5800)
+Impulse Drive   13.155625       (["Heavy Thrust"], [], 0, [], None, 800, 5800)
+Impulse Drive   11.537222       (["Heavy Thrust"], [], 0, [], Some "Disembowel", 800, 5800)
+Chaos Thrust    10.920192       (["Heavy Thrust"], [], 0, [], Some "Disembowel", 700, 5800)
+Spineshatter Jump       12.382835       (["Heavy Thrust"], [], 0, [], None, 700, 5800)
+Dragonfire Dive 13.676039       (["Dive Ready"; "Heavy Thrust"], ["Spineshatter Jump"], 0, [], None, 700, 5800)
+Life Surge      12.582565       (["Dive Ready"; "Heavy Thrust"], ["Dragonfire Dive"; "Spineshatter Jump"], 1, [],
+ None, 700, 5800)
+Impulse Drive   13.501528       (["Dive Ready"; "Heavy Thrust"],
+ ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 1, [], None, 700, 5800)
+Impulse Drive   13.006487       (["Dive Ready"; "Heavy Thrust"],
+ ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 700, 5800)
+Impulse Drive   12.588312       (["Dive Ready"; "Heavy Thrust"],
+ ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 700, 5800)
+Impulse Drive   11.831676       (["Dive Ready"; "Heavy Thrust"],
+ ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 700, 5800)
+Impulse Drive   11.545859       (["Dive Ready"; "Heavy Thrust"],
+ ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 600, 5800)
+Impulse Drive   11.278716       (["Dive Ready"; "Heavy Thrust"],
+ ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 600, 5800)
+Disembowel      11.077820       (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 500, 5800)
+Chaos Thrust    10.674474       (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 500, 5800)
+Chaos Thrust    10.307633       (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 500, 5800)
+Chaos Thrust    9.970071        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 500, 5800)
+Chaos Thrust    9.461032        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 500, 5800)
+Impulse Drive   9.293149        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 400, 5800)
+Heavy Thrust    9.092486        ([], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 400, 5800)
+Chaos Thrust    8.828153        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 400, 5800)
+Impulse Drive   8.664949        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 400, 5800)
+Chaos Thrust    8.416667        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 300, 5800)
+Piercing Talon  8.151736        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 300, 5800)
+Impulse Drive   7.995511        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ None, 200, 5800)
+Blood of the Dragons    7.779938        (["Heavy Thrust"], ["Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"], 0, [],
+ Some "Disembowel", 200, 5800)
+Disembowel      7.746978        (["Blood of the Dragon"; "Heavy Thrust"],
+ ["Blood of the Dragons"; "Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"],
+ 0, [], Some "Disembowel", 200, 5800)
+Jump    7.996385        (["Blood of the Dragon"; "Heavy Thrust"],
+ ["Blood of the Dragons"; "Dragonfire Dive"; "Life Surge"; "Spineshatter Jump"],
+ 0, [], None, 100, 5800)
+Piercing Talon  7.840540        (["Blood of the Dragon"; "Dive Ready"; "Heavy Thrust"],
+ ["Blood of the Dragons"; "Dragonfire Dive"; "Jump"; "Spineshatter Jump"], 0, [],
+ None, 200, 5800)
+DPS (tick 0)    AutoAttack: 98  DoT: 0  Skill: 0        Damage: 0       DPS: 0
+DPS (tick 1)    AutoAttack: 0   DoT: 0  Skill: 209      Damage: 98      DPS: 0
+DPS (tick 27)   AutoAttack: 0   DoT: 0  Skill: 132      Damage: 307     DPS: 153
+DPS (tick 30)   AutoAttack: 107 DoT: 0  Skill: 0        Damage: 439     DPS: 146
+DPS (tick 53)   AutoAttack: 0   DoT: 0  Skill: 220      Damage: 546     DPS: 109
+DPS (tick 60)   AutoAttack: 107 DoT: 0  Skill: 0        Damage: 766     DPS: 127
+DPS (tick 79)   AutoAttack: 0   DoT: 0  Skill: 220      Damage: 873     DPS: 124
+DPS (tick 90)   AutoAttack: 107 DoT: 0  Skill: 0        Damage: 1093    DPS: 121
+DPS (tick 105)  AutoAttack: 0   DoT: 0  Skill: 154      Damage: 1200    DPS: 120
+DPS (tick 116)  AutoAttack: 0   DoT: 0  Skill: 231      Damage: 1354    DPS: 123
+DPS (tick 120)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 1585    DPS: 132
+DPS (tick 127)  AutoAttack: 0   DoT: 0  Skill: 352      Damage: 1692    DPS: 141
+DPS (tick 149)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 2044    DPS: 146
+DPS (tick 150)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 2264    DPS: 150
+DPS (tick 175)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 2371    DPS: 139
+DPS (tick 180)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 2591    DPS: 143
+DPS (tick 201)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 2698    DPS: 134
+DPS (tick 210)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 2918    DPS: 138
+DPS (tick 227)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 3025    DPS: 137
+DPS (tick 240)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 3245    DPS: 135
+DPS (tick 253)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 3352    DPS: 134
+DPS (tick 270)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 3572    DPS: 132
+DPS (tick 279)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 3679    DPS: 136
+DPS (tick 300)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 3899    DPS: 129
+DPS (tick 305)  AutoAttack: 0   DoT: 0  Skill: 240      Damage: 4006    DPS: 133
+DPS (tick 330)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 4246    DPS: 128
+DPS (tick 331)  AutoAttack: 0   DoT: 0  Skill: 154      Damage: 4353    DPS: 131
+DPS (tick 357)  AutoAttack: 0   DoT: 0  Skill: 154      Damage: 4507    DPS: 128
+DPS (tick 360)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 4661    DPS: 129
+DPS (tick 383)  AutoAttack: 0   DoT: 0  Skill: 154      Damage: 4768    DPS: 125
+DPS (tick 390)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 4922    DPS: 126
+DPS (tick 409)  AutoAttack: 0   DoT: 0  Skill: 154      Damage: 5029    DPS: 125
+DPS (tick 420)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 5183    DPS: 123
+DPS (tick 435)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 5290    DPS: 123
+DPS (tick 450)  AutoAttack: 98  DoT: 0  Skill: 0        Damage: 5510    DPS: 122
+DPS (tick 461)  AutoAttack: 0   DoT: 0  Skill: 209      Damage: 5608    DPS: 121
+DPS (tick 480)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 5817    DPS: 121
+DPS (tick 487)  AutoAttack: 0   DoT: 0  Skill: 154      Damage: 5924    DPS: 123
+DPS (tick 510)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 6078    DPS: 119
+DPS (tick 513)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 6185    DPS: 121
+DPS (tick 539)  AutoAttack: 0   DoT: 0  Skill: 154      Damage: 6405    DPS: 120
+DPS (tick 540)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 6559    DPS: 121
+DPS (tick 565)  AutoAttack: 0   DoT: 0  Skill: 132      Damage: 6666    DPS: 119
+DPS (tick 570)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 6798    DPS: 119
+DPS (tick 591)  AutoAttack: 0   DoT: 0  Skill: 220      Damage: 6905    DPS: 117
+DPS (tick 600)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 7125    DPS: 118
+DPS (tick 617)  AutoAttack: 0   DoT: 0  Skill: 240      Damage: 7232    DPS: 118
+DPS (tick 628)  AutoAttack: 0   DoT: 0  Skill: 343      Damage: 7472    DPS: 120
+DPS (tick 630)  AutoAttack: 107 DoT: 0  Skill: 0        Damage: 7815    DPS: 124
+DPS (tick 643)  AutoAttack: 0   DoT: 0  Skill: 132      Damage: 7922    DPS: 123
+DPS: 123
