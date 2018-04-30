@@ -518,9 +518,12 @@
                         match skill.CooldownType with
                         | GlobalCooldown ->
                             let addSkill =
-                                let job = Rotation.updateJobSkillCost job skill
-                                match job with
-                                | None -> rotation
+                                let newJob = Rotation.updateJobSkillCost job skill
+                                match newJob with
+                                | None -> 
+                                    let ticks = ticks |> List.map snd
+                                    let job, ticks = Rotation.addDummy ticks (job.Speed) job
+                                    Rotation.add skill (Rotation (ticks, job))
                                 | Some job ->
                                     let nextTick =
                                         {
@@ -557,14 +560,17 @@
                                     Rotation.add skill (Rotation (ticks, job))
                                 else
                                     rotation
-                                //let ticks = ticks |> List.map snd
-                                //let job, ticks = addDummy ticks (tick - 1 - lastindex) job
-                                //Rotation.add skill (Rotation (ticks, job))
+                                    //let ticks = ticks |> List.map snd
+                                    //let job, ticks = Rotation.addDummy ticks (tick - 1 - lastindex) job
+                                    //Rotation.add skill (Rotation (ticks, job))
                             | None -> 
                                 let addSkill =
-                                    let job = Rotation.updateJobSkillCost job skill
-                                    match job with
-                                    | None -> rotation
+                                    let newJob = Rotation.updateJobSkillCost job skill
+                                    match newJob with
+                                    | None -> 
+                                        let ticks = ticks |> List.map snd
+                                        let job, ticks = Rotation.addDummy ticks (job.Speed) job
+                                        Rotation.add skill (Rotation (ticks, job))
                                     | Some job ->
                                         let ogcdTimers = (skill, lastindex + 1 + cd) :: ogcdTimers
                                         let nextTick =

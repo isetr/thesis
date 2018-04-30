@@ -96,75 +96,79 @@
         open Model
         open Calculations
 
-        type State = 
-            (int list) * (int list) * int * (int list) * (string option) * int * int
-
-        let fromRotation (r: Rotation) : State =
-            match r with
-            | Rotation (ticks, j) ->
-                let last = List.last ticks
-                let buffs =
-                    last.ActiveBuffs
-                    |> List.map (fun (b, _) -> b.ID)
-                    |> List.sort
-                let ogcd =
-                    last.OGCDTimers
-                    |> List.map (fun (b, _) -> b.ID)
-                    |> List.sort
-                let dots =
-                    last.ActiveDoTs
-                    |> List.map (fun (b, _) -> b.ID)
-                    |> List.sort
-                let combo =
-                    last.ActiveCombo
-                    |> Option.map (fun (c, _) -> c.Target)
-                let gcd = 
-                    match last.GCDtick with
-                    | Cooldown _ -> 0
-                    | Available -> 1
-                (buffs, ogcd, gcd, dots, combo, j.TP, j.MP)
-        
-        //type State = int list
+        //type State = 
+        //    (int list) * (int list) * int * (int list) * (string option) * int * int
 
         //let fromRotation (r: Rotation) : State =
         //    match r with
-        //    | Rotation (ticks, _) ->
-        //        ticks
-        //        |> List.map (fun t ->
-        //            match t.ActiveSkill with
-        //            | None -> -1
-        //            | Some s -> s.ID
-        //        )
-        //        |> List.filter (fun id -> id >= 0)
-        //        |> List.rev
-        //        |> List.truncate 6
-        //        |> List.rev
+        //    | Rotation (ticks, j) ->
+        //        let last = List.last ticks
+        //        let buffs =
+        //            last.ActiveBuffs
+        //            |> List.map (fun (b, _) -> b.ID)
+        //            |> List.sort
+        //        let ogcd =
+        //            last.OGCDTimers
+        //            |> List.map (fun (b, _) -> b.ID)
+        //            |> List.sort
+        //        let dots =
+        //            last.ActiveDoTs
+        //            |> List.map (fun (b, _) -> b.ID)
+        //            |> List.sort
+        //        let combo =
+        //            last.ActiveCombo
+        //            |> Option.map (fun (c, _) -> c.Target)
+        //        let gcd = 
+        //            match last.GCDtick with
+        //            | Cooldown _ -> 0
+        //            | Available -> 1
+        //        (buffs, ogcd, gcd, dots, combo, j.TP, j.MP)
+        
+        type State = int list
+
+        let fromRotation (r: Rotation) : State =
+            match r with
+            | Rotation (ticks, _) ->
+                ticks
+                |> List.choose (fun t ->
+                    match t.ActiveSkill with
+                    | None -> None
+                    | Some s -> Some s.ID
+                )
+
+        let toKey (s: State) : int =
+            List.length s
 
         let createRandomPolicy (n: int) =
             let ones = List.init n (fun _ -> 1. / float n)
             fun (s: State) -> ones
 
-        let createEpsilonGreedyPolicy (Q: Map<State, float list>) (nA: int) (epsilon: float) =
+        let createEpsilonGreedyPolicy (Q: Map<int, Map<State, float list>>) (nA: int) (epsilon: float) =
             let policy (s: State) =
-                match Q.TryFind s with
-                | Some values -> 
-                    let prob = if nA > 1 then epsilon / float (nA - 1) else 1.
-                    let A = List.init (List.length values) (fun _ -> prob)
-                    let best = 
-                        values
+                let len = (toKey s)
+                match Q.TryFind len with
+                | Some maps -> 
+                    match maps.TryFind s with
+                    | Some values ->
+                        let prob = if nA > 1 then epsilon / float (nA - 1) else 1.
+                        let A = List.init (List.length values) (fun _ -> prob)
+                        let best = 
+                            values
+                            |> List.indexed
+                            |> List.maxBy snd
+                            |> fst
+                        A
                         |> List.indexed
-                        |> List.maxBy snd
-                        |> fst
-                    A
-                    |> List.indexed
-                    |> List.map (fun (i, v) -> 
-                        if i = best then 1. - epsilon else v
-                    )
+                        |> List.map (fun (i, v) -> 
+                            if i = best then 1. - epsilon else v
+                        )
+                    | None ->
+                        List.init nA (fun _ -> if nA > 1 then 1. / float nA else 1.)
                 | None -> 
                     List.init nA (fun _ -> if nA > 1 then 1. / float nA else 1.)
             policy
 
-        let createGreedyPolicy (Q:Map<State, float list>) (n: int) =
+        let createGreedyPolicy (Q: Map<int, Map<State, float list>>) (n: int) =
             createEpsilonGreedyPolicy Q n 0.
 
         let genEpisode (behavior: State -> float list) (random: System.Random) (job: Job * Skill list) (parseDuration: int) =
@@ -200,17 +204,39 @@
                             match rot, nextRot with
                             | Rotation (oldT, oldJ), Rotation (newT, newJ) ->
                                 List.length oldT, List.length newT, oldJ, newJ
+                        let skillres =
+                            match skill.CostType with
+                            | Free -> false
+                            | TP d -> job.TP - d < 0
+                            | MP d -> job.MP - d < 0
+                        let oldDmg = ToDamage rot false
                         let dmg = ToDamage nextRot false
                         //let reward = float <| (float dmg / float newLen) - (float dmg / 1800.)
-                        //let reward = float dmg
-                        let reward = float (newLen * dmg) / 1800.
+                        let reward = float (dmg - oldDmg) / float (newLen - len)
+                        //let reward = float newLen
+                        //let reward = float <| dmg / newLen
+                        //let reward = float (newLen * dmg) / parseDuration
+                        //let reward = if newLen > parseDuration then 1. else 0.
+                        //let reward = if newLen > len then 1. else 0.
+                        //let reward = 
+                        //    let len = if newLen > parseDuration then 1. else 0.
+                        //    let combo = 
+                        //        match rot with
+                        //        | Rotation (ticks, _) -> 
+                        //            let last = ticks |> List.last
+                        //            match last.ActiveCombo with
+                        //            | None -> 1.
+                        //            | Some (c, _) -> 
+                        //                if c.Target = skill.Name then 2. else 0.5
+                        //    float newLen
+                        //let reward = 10. * float (newLen - len) + 0.1 * float (dmg - oldDmg)
                         let reward =
-                            let skillres =
-                                match skill.CostType with
-                                | Free -> false
-                                | TP d -> job.TP - d < 0
-                                | MP d -> job.MP - d < 0
-                            if newLen = len || skillres then 0. else reward
+                            if newLen = len then 
+                                -50. 
+                            elif newLen >= 1800 then
+                                2000.
+                            else 
+                                reward
                         //printfn "%s,\t %f" skill.Name reward
                         let finished =
                             let time, job =
@@ -223,27 +249,36 @@
                                 | MP d -> job.MP - d < 0
                             let lenDiff = 
                                 newLen = len
-                            time || skillres || lenDiff
+                            time || lenDiff
                         nextState, reward, finished, nextRot
                     let episode = List.append ep [(state, action, reward)]
                     genEpisode nextRotation nextState finished episode
             genEpisode rot state false []
             
-        let mcControlImportanceSampling (job: Job * Skill list) (parseDuration: int) (env: State) (episodes: int) (behavior: State -> float list) (discountFactor: float) (seed: int option) =
-            let Q : Map<State, float list> = Map.empty
-            let C : Map<State, float list> = Map.empty
+        let mcControlImportanceSampling (job: Job * Skill list) 
+                                        (parseDuration: int) 
+                                        (episodes: int) 
+                                        (behavior: State -> float list) 
+                                        (Q : Map<int, Map<State, float list>>) 
+                                        (C : Map<int, Map<State, float list>>) 
+                                        (discountFactor: float) 
+                                        (seed: int option)
+                                        (threads: int) =
             let nA = job |> snd |> List.length
             let random =
                 match seed with
                 | None -> System.Random()
                 | Some s -> System.Random s
-
-            let threads = 10
                 
-            let Q, _ =
+            let Q, C =
                 Array.Parallel.init threads (fun _ ->
                     Array.init (episodes / threads) (fun n ->
-                        if n % 1000 = 0 then printf "."
+                        let spacing = 
+                            if episodes <= 100 then
+                                1
+                            else 
+                                1000
+                        if n % spacing = 0 then printf "."
                         genEpisode behavior random job parseDuration
                     )
                 )
@@ -261,43 +296,73 @@
                         (G, C, Q, W)
                         |> Seq.foldBack (fun v s ->
                             let state, action, reward = v
-                            let G, (C: Map<State, float list>), (Q: Map<State, float list>), W = s
+                            let G, (C: Map<int, Map<State, float list>>), (Q: Map<int, Map<State, float list>>), W = s
                             let G = discountFactor * G + reward
-                            let newCVal = 
-                                match C.TryFind state with
-                                | Some s -> 
-                                    s
-                                    |> List.indexed
-                                    |> List.map (fun (i, p) ->
-                                        if i = action then p + W else p
-                                    )
+                            let len = toKey state
+                            let C = 
+                                let newCVal = 
+                                    match C.TryFind len with
+                                    | Some maps ->
+                                        match maps.TryFind state with
+                                        | Some s -> 
+                                            s
+                                            |> List.indexed
+                                            |> List.map (fun (i, p) ->
+                                                if i = action then p + W else p
+                                            )
+                                        | None -> 
+                                            List.init nA (fun _ -> 0.)
+                                            |> List.indexed
+                                            |> List.map (fun (i, p) ->
+                                                if i = action then p + W else p
+                                            )
+                                    | None -> 
+                                        List.init nA (fun _ -> 0.)
+                                        |> List.indexed
+                                        |> List.map (fun (i, p) ->
+                                            if i = action then p + W else p
+                                        )
+                                match C.TryFind len with
+                                | Some maps ->
+                                    C.Add (len, maps.Add (state, newCVal))
                                 | None -> 
-                                    List.init nA (fun _ -> 0.)
-                                    |> List.indexed
-                                    |> List.map (fun (i, p) ->
-                                        if i = action then p + W else p
-                                    )
-                            let C = C.Add (state, newCVal)
+                                    C.Add (len, Map [(state, newCVal)])
                             let cVal =
-                                match C.TryFind state with
-                                | Some s -> 
-                                    s |> List.item action
+                                match C.TryFind len with
+                                | Some maps -> 
+                                    match maps.TryFind state with
+                                    | Some s ->
+                                        s |> List.item action
+                                    | None -> 0.
                                 | None -> 0.
-                            let newQVal =
-                                match Q.TryFind state with
-                                | Some s -> 
-                                    s
-                                    |> List.indexed
-                                    |> List.map (fun (i, p) ->
-                                        if i = action then p + (W / cVal) * (G - p) else p
-                                    )
+                            let Q = 
+                                let newQVal =
+                                    match Q.TryFind len with
+                                    | Some maps -> 
+                                        match maps.TryFind state with
+                                        | Some s ->
+                                            s
+                                            |> List.indexed
+                                            |> List.map (fun (i, p) ->
+                                                if i = action then p + (W / cVal) * (G - p) else p
+                                            )
+                                        | None -> 
+                                            List.init nA (fun _ -> 0.)
+                                            |> List.indexed
+                                            |> List.map (fun (i, p) ->
+                                                if i = action then (W / cVal) * G else 0.
+                                            )
+                                    | None -> 
+                                        List.init nA (fun _ -> 0.)
+                                        |> List.indexed
+                                        |> List.map (fun (i, p) ->
+                                            if i = action then (W / cVal) * G else 0.
+                                        )
+                                match Q.TryFind len with
+                                | Some maps ->
+                                    Q.Add (len, maps.Add (state, newQVal))
                                 | None -> 
-                                    List.init nA (fun _ -> 0.)
-                                    |> List.indexed
-                                    |> List.map (fun (i, p) ->
-                                        if i = action then (W / cVal) * G else 0.
-                                    )
-                            let Q = Q.Add (state, newQVal)
+                                    Q.Add (len, Map [(state, newQVal)])
                             let denom = 
                                 behavior state
                                 |> List.item action
@@ -306,9 +371,107 @@
                         ) episode
                     Q, C
                 ) (Q, C)
-            Q, createGreedyPolicy Q nA
+            Q, C, createGreedyPolicy Q nA
 
-        let runPolicy (job: Job * Skill list) (behavior: State -> float list) (parseDuration: int) (seed: int option) =
+        open System.IO
+
+        let printToFile (ep: (State * int * float) list) (job: Job * Skill list) (Q: Map<int, Map<State, float list>>) (folder : string) =
+            let filename = System.DateTime.Now.ToString("yyyyMMdd-Hmmss") + ".log"
+            let dir = Path.Combine (Directory.GetCurrentDirectory(), "logs", folder)
+            Directory.CreateDirectory dir |> ignore
+            let path = Path.Combine (dir, filename)
+            use file = StreamWriter path
+            let rot =
+                ep
+                |> List.map (fun (state, i, rew) -> (i, List.item i (snd job)), state, rew)
+                |> List.fold (fun s v ->
+                    let (i, skill), state, rew = v
+                    //let _, _, gcd, _, _, _, _ = state
+                    let len = toKey state
+                    let value = 
+                        match Q.TryFind len with
+                        | Some maps ->
+                            match maps.TryFind state with
+                            | Some v -> sprintf "(%f, %A)"(List.item i v) (string v)
+                            | None -> "None"
+                        | None -> "None"
+                    file.WriteLine (sprintf "%20s\t%f\t%A\t%A" skill.Name rew value state)
+                    Rotation.add skill s
+                ) (Rotation.empty (fst job))
+            match rot with
+            | Rotation (ticks, job) ->
+                ticks
+                |> List.indexed
+                |> List.fold (fun dps (index, tick) ->
+                    let buffs =
+                        tick.ActiveBuffs
+                        |> List.fold (fun (s: Skill -> Skill) (v, _) ->
+                            match v.Effect with
+                            | BuffType.Skill b -> s >> b
+                            | _ -> id
+                        ) id
+                    let debuffs =
+                        tick.ActiveDebuffs
+                        |> List.fold (fun (s: Skill -> Skill) (v, _) ->
+                            match v.Effect with
+                            | BuffType.Skill b -> s >> b
+                            | _ -> id
+                        ) id
+                    let combo =
+                        match tick.ActiveCombo with
+                        | None -> id
+                        | Some (c, _) -> 
+                            match tick.ActiveSkill with
+                            | None -> id
+                            | Some s ->
+                                if c.Target = s.Name then
+                                    c.Effect
+                                else
+                                    id
+
+                    let autoattack =
+                        if index % 30 = 0 then
+                            Some <| (buffs >> debuffs) job.AutoAttack
+                        else
+                            None
+                    let activeskill =
+                        match tick.ActiveSkill with
+                        | None -> None
+                        | Some s -> Some <| (buffs >> debuffs >> combo) s
+
+                    let dotPotency =
+                        tick.ActiveDoTs
+                        |> List.fold (fun s (v, (start, _)) ->
+                            if index > start && (index - start) % 30 = 0 then
+                                s + v.Potency
+                            else
+                                0
+                        ) 0
+                    let aaPotency = 
+                        match autoattack with
+                        | None -> 0
+                        | Some autoattack -> autoattack.Potency
+                    let activePotency =
+                        match activeskill with
+                        | None -> 0
+                        | Some active -> active.Potency
+                    if dotPotency + aaPotency + activePotency > 0 then
+                        let buffsPrint =
+                            tick.ActiveBuffs
+                            |> List.map (fun (b, i) -> sprintf "(%s, %d, %d)" b.Name b.Stacks i)
+                        let relativeDPS =
+                            if index < 10 then 
+                                0
+                            else
+                                (dps / (index / 10))
+                        file.WriteLine (sprintf "DPS (tick %d)\tAutoAttack: %d\tDoT: %d\tSkill: %d\tDamage: %d\tDPS: %d" index aaPotency dotPotency activePotency dps relativeDPS)
+                    dps + dotPotency + aaPotency + activePotency
+                ) 0
+                |> ignore
+            file.Flush ()
+            file.Close ()
+
+        let runPolicy (job: Job * Skill list) (behavior: State -> float list) (parseDuration: int) (Q: Map<int, Map<State, float list>>) (seed: int option) (folder: string) =
             let startT = System.DateTime.Now
             let rotation = Rotation.empty (fst job)
             let random =
@@ -316,28 +479,39 @@
                 | None -> System.Random()
                 | Some s -> System.Random s
                 
-            let episode =
+            let episode = //genEpisode behavior random job parseDuration
                 Array.init 1000 (fun _ -> genEpisode behavior random job parseDuration)
                 |> Array.maxBy (fun ep ->
                     ep
+                    //|> List.fold (fun s (_, _, rew) ->
+                    //    s + rew
+                    //) 0.
                     |> List.map (fun (state, i, rew) -> List.item i (snd job), state, rew)
                     |> List.fold (fun s v ->
                         let skill, state, rew = v
-                        //printfn "%s\t%f\t%A" skill.Name rew state
                         Rotation.add skill s
                     ) rotation
-                    |> fun rot -> (ToDamage rot false)
+                    |> fun rot -> (ToDamage rot false)// / parseDuration
                 )
             let endT = System.DateTime.Now
 
+            printToFile episode job Q folder
             printfn "\nOptimal rotation: "
             let rot =
                 episode
-                |> List.map (fun (state, i, rew) -> List.item i (snd job), state, rew)
+                |> List.map (fun (state, i, rew) -> (i, List.item i (snd job)), state, rew)
                 |> List.fold (fun s v ->
-                    let skill, state, rew = v
+                    let (i, skill), state, rew = v
                     //let _, _, gcd, _, _, _, _ = state
-                    printfn "%s\t%f\t%A" skill.Name rew state
+                    let len = toKey state
+                    let value = 
+                        match Q.TryFind len with
+                        | Some maps ->
+                            match maps.TryFind state with
+                            | Some v -> (List.item i v), string v //sprintf "%A" v
+                            | None -> 0., "None"
+                        | None -> 0., "None"
+                    printfn "%20s\t%f\t%A\t%A" skill.Name rew value state
                     Rotation.add skill s
                 ) rotation
             printfn "DPS:\t%d\tGeneration Time: %A " (ToDPS rot true) (endT - startT)

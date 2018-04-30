@@ -90,31 +90,44 @@
                     Dragoon.VorpalThrust
                     Dragoon.WheelingThrust
                 ]
-
+                
+            printf "\nDuration: "
+            let duration = int <| System.Console.ReadLine ()
+            printf "\nThreads: "
+            let threads = int <| System.Console.ReadLine ()
             printf "\nEpisodes: "
             let episodes = int <| System.Console.ReadLine ()
             printf "\nGenerations: "
             let generations = int <| System.Console.ReadLine ()
             printf "\nSample: "
             let sample = int <| System.Console.ReadLine ()
-
             //let Q, _ = mcControlImportanceSampling (job, skillset) 1800 (fromRotation (Rotation.empty job)) 30 (createRandomPolicy (skillset.Length)) 0.9 None
-            let geneticPolicy (generations: int) (startingPolicy: State -> float list) (dur: int) (sampling: int) =
+            let folder = sprintf "%s-%d-%d-%d" (System.DateTime.Now.ToString("yyyyMMdd-Hmmss")) generations episodes duration
+
+            let geneticPolicy (generations: int) (startingPolicy: State -> float list) (dur: int) (sampling: int) (threads: int) =
+                let T = System.DateTime.Now
                 List.init generations id
-                |> List.fold (fun s i ->
+                |> List.fold (fun (Q, C, s) i ->
                     let startT = System.DateTime.Now
                     let epsilon = 1. / (5. * System.Math.Log (float i + 5.))
                     if i % 1 = 0 then printfn "\nGeneration #%d\t | Epsilon:\t%f" i (if i = 0 then 0. else epsilon)
-                    let Q, _ = mcControlImportanceSampling (job, skillset) dur (fromRotation (Rotation.empty job)) sampling s 0.8 None
+                    let Q, C, _ = mcControlImportanceSampling (job, skillset) dur sampling s Q C 0.7 None threads
                     let policy = (createEpsilonGreedyPolicy Q (skillset.Length) epsilon)
                     let endT = System.DateTime.Now
-                    printfn "\nGeneration time: %A" (endT - startT)
+                    let QCount =
+                        Q 
+                        |> Map.fold (fun s k v ->
+                            s + Map.count v
+                        ) 0
+                    printfn "\nGeneration time: %A\tTotal elapsed time: %A\tQ size: %d" (endT - startT) (endT - T) QCount //(Map.count Q)
                     if sample > 0 && i % sample = 0 then
-                        runPolicy (job, skillset) policy dur None
-                    policy
-                ) startingPolicy
+                        runPolicy (job, skillset) policy dur Q None folder
+                    Q, C, policy
+                ) (Map.empty, Map.empty, startingPolicy)
             //printfn "%A" Q
-            //printfn "\n Simulation by Q policy: "
-            runPolicy (job, skillset) (geneticPolicy generations (createRandomPolicy (skillset.Length)) 1800 episodes) 1800 None
+            //printfn "\n Simulation by Q policy: " 
+            let Q, C, policy = geneticPolicy generations (createRandomPolicy (skillset.Length)) duration episodes threads
+            let policy = createEpsilonGreedyPolicy Q (skillset.Length) 0.05
+            runPolicy (job, skillset) policy duration Q None folder
             System.Console.ReadKey () |> ignore
             0

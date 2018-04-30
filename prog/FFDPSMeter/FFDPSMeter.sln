@@ -5,6 +5,11 @@ VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FFDPSMeter", "FFDPSMeter\FFDPSMeter.fsproj", "{3F40016F-1081-46F2-BDF3-2861A05D60A4}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "App", "App\App.fsproj", "{6CFEAB17-C3CE-4D5D-9F38-69436C9937EC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3F40016F-1081-46F2-BDF3-2861A05D60A4} = {3F40016F-1081-46F2-BDF3-2861A05D60A4}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +20,10 @@ Global
 		{3F40016F-1081-46F2-BDF3-2861A05D60A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F40016F-1081-46F2-BDF3-2861A05D60A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F40016F-1081-46F2-BDF3-2861A05D60A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CFEAB17-C3CE-4D5D-9F38-69436C9937EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CFEAB17-C3CE-4D5D-9F38-69436C9937EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CFEAB17-C3CE-4D5D-9F38-69436C9937EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CFEAB17-C3CE-4D5D-9F38-69436C9937EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
