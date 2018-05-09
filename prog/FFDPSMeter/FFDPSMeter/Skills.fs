@@ -125,7 +125,7 @@
                     CostType        = CostType.TP 100
                     CastType        = CastType.Instant
                     SkillType       = SkillType.Weaponskill
-                    Combo           = Some combo
+                    Combo           = Some [combo]
                     Condition       = None
                     ID = 6
                 }
@@ -147,7 +147,7 @@
                     CostType        = CostType.TP 100
                     CastType        = CastType.Instant
                     SkillType       = SkillType.Weaponskill
-                    Combo           = Some combo
+                    Combo           = Some [combo]
                     Condition       = None
                     ID = 7
                 }
@@ -165,6 +165,578 @@
                     Condition       = None
                     ID = 8
                 }
+
+        module Paladin =
+            let Job : Job =
+                let AutoAttack : Skill =
+                    {
+                        Name = "Auto Attack"
+                        Potency = 72
+                        Action = ActionType.Damage None
+                        CooldownType = CooldownType.OffGlobalCooldown 30
+                        CostType = CostType.Free
+                        CastType = CastType.Instant
+                        SkillType = SkillType.Weaponskill
+                        Combo = None
+                        Condition = None
+                        ID = 0
+                    }
+                {
+                    Name = "Paladin"
+                    Speed = 25
+                    AutoAttack = AutoAttack
+                    MaxMP = 8800
+                    MP = 8800
+                    TP = 1000
+                }
+
+            let FastBlade : Skill =
+                let comboRiot : Combo =
+                    let buff : Buff = 
+                        {
+                            Name = "Riot Blade"
+                            Effect = BuffType.Job (fun j -> 
+                                let mp =
+                                    if j.MP + (int ((float j.MaxMP) * 0.1)) > j.MaxMP then
+                                        j.MaxMP
+                                    else
+                                        j.MP + (int ((float j.MaxMP) * 0.1))
+                                {j with MP = mp}
+                            )
+                            Duration = 0
+                            Condition = Condition.NotLimited
+                            Stacks = 0
+                            EndEffect = None
+                            ID = 4
+                        }
+                    let comboGoring =
+                        {
+                            Name = "Riot Blade"
+                            Target = "Goring Blade"
+                            Effect = (fun s -> {s with Potency = 250; Action = ActionType.DamageOverTime (60, 210, None)})
+                            DistruptedByGCD = true
+                            NotFirst = false
+                        }
+                    let comboRoyal =
+                        {
+                            Name = "Riot Blade"
+                            Target = "Royal Authority"
+                            Effect = (fun s -> {s with Potency = 360})
+                            DistruptedByGCD = true
+                            NotFirst = false
+                        }
+                    {
+                        Name = "Fast Blade"
+                        Target = "Riot Blade"
+                        Effect = (fun s -> {s with Potency = 240; Action = ActionType.Damage (Some [buff]); Combo = Some [comboGoring; comboRoyal]})
+                        DistruptedByGCD = true
+                        NotFirst = false
+                    }
+                let comboSavage : Combo = 
+                    let combo : Combo = 
+                        {
+                            Name = "Savage Blade"
+                            Target = "Rage of Halone"
+                            Effect = (fun s -> {s with Potency = 270})
+                            DistruptedByGCD = true
+                            NotFirst = false
+                        }
+                    {
+                        Name = "Fast Blade"
+                        Target = "Savage Blade"
+                        Effect = (fun s -> {s with Potency = 210; Combo = Some [combo]})
+                        DistruptedByGCD = true
+                        NotFirst = false
+                    }
+                {
+                    Name = "Fast Blade"
+                    Potency = 160
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 60
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = Some [comboSavage; comboRiot]
+                    Condition = None
+                    ID = 1
+                }
+
+            let FightOrFlight : Skill =
+                let buff : Buff = 
+                    {
+                        Name = "Fight or Flight"
+                        Effect = Skill (fun s -> {s with Potency = int ((float s.Potency) * 1.25)})
+                        Duration = 250
+                        Condition = Condition.NotLimited
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 2
+                    }
+                {
+                    Name = "Fight or Flight"
+                    Potency = 0
+                    Action = ActionType.Buff [buff]
+                    CooldownType = CooldownType.OffGlobalCooldown 600
+                    CostType = CostType.Free
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Ability
+                    Combo = None
+                    Condition = None
+                    ID = 2
+                }
+
+            let SavageBlade : Skill =
+                {
+                    Name = "Savage Blade"
+                    Potency = 100
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 60
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = None
+                    Condition = None
+                    ID = 3
+                }
+
+            let RiotBlade : Skill =
+                {
+                    Name = "Riot Blade"
+                    Potency = 100
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 60
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = None
+                    Condition = None
+                    ID = 4
+                }
+
+            let ShieldLob : Skill =
+                {
+                    Name = "Shield Lob"
+                    Potency = 120
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 120
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = None
+                    Condition = None
+                    ID = 5
+                }
+
+            let ShieldBash : Skill =
+                {
+                    Name = "Shield Bash"
+                    Potency = 120
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 120
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = None
+                    Condition = None
+                    ID = 6
+                }
+
+            let RageOfHalone : Skill = 
+                {
+                    Name = "Rage of Halone"
+                    Potency = 100
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 60
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = None
+                    Condition = None
+                    ID = 7
+                }
+
+            let ShieldSwipe : Skill =
+                let buff : Buff =
+                    {
+                        Name = "Blocked"
+                        Effect = BuffDuration (fun b ->
+                            if b.Name = "Blocked" then
+                                Some (b, 0, 0)
+                            else
+                                None
+                        )
+                        Duration = 0
+                        Condition = Condition.NotLimited
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 8
+                    }
+                let cond (buffs: Buff list) =
+                    buffs
+                    |> List.map (fun b -> b.Name)
+                    |> List.contains "Blocked"
+                {
+                    Name = "Shield Swipe"
+                    Potency = 100
+                    Action = ActionType.Damage (Some [buff])
+                    CooldownType = CooldownType.OffGlobalCooldown 150
+                    CostType = CostType.Free
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Ability
+                    Combo = None
+                    Condition = Some cond
+                    ID = 8
+                }
+
+            let ShieldOath : Skill =
+                let oath : Buff =
+                    {
+                        Name = "Oath"
+                        Effect = Skill id
+                        Duration = 6000
+                        Condition = Condition.NotLimited
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 100
+                    }
+                let buff : Buff =
+                    let cond ((_, _, buffs): Skill * Job * Buff list) : bool =
+                        let swo =
+                            buffs
+                            |> List.map (fun b -> b.Name)
+                            |> List.contains "Sword Oath"
+                        let sho =
+                            buffs
+                            |> List.map (fun b -> b.Name)
+                            |> List.contains "Shield Oath"
+                        swo || sho
+                    {
+                        Name = "Shield Oath"
+                        Effect = Skill (fun s -> {s with Potency = int ((float s.Potency) * 0.75)})
+                        Duration = 6000
+                        Condition = Condition.LimitedUses (1, cond)
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 8
+                    }
+                {
+                    Name = "Shield Oath"
+                    Potency = 0
+                    Action = ActionType.Buff [buff;oath]
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.MP 600
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Ability
+                    Combo = None
+                    Condition = None
+                    ID = 8
+                }
+
+            let SwordOath : Skill =
+                let oath : Buff =
+                    {
+                        Name = "Oath"
+                        Effect = Skill id
+                        Duration = 6000
+                        Condition = Condition.NotLimited
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 100
+                    }
+                let buff : Buff =
+                    let cond ((_, _, buffs): Skill * Job * Buff list) : bool =
+                        let swo =
+                            buffs
+                            |> List.map (fun b -> b.Name)
+                            |> List.contains "Sword Oath"
+                        let sho =
+                            buffs
+                            |> List.map (fun b -> b.Name)
+                            |> List.contains "Shield Oath"
+                        swo || sho
+                    let addToOath : Buff =
+                        {
+                            Name = "Oath"
+                            Effect = BuffDuration (fun buff ->
+                                if buff.Name = "Oath" then
+                                    if buff.Stacks + 5 > 100 then
+                                        Some ({buff with Stacks = 100; ID = 200}, 6000, 6000)
+                                    else
+                                        Some ({buff with Stacks = buff.Stacks + 5; ID = buff.ID + 5}, 6000, 6000)
+                                else
+                                    None
+                            )
+                            Duration = 0
+                            Condition = Condition.NotLimited
+                            Stacks = 0
+                            EndEffect = None
+                            ID = 100
+                        }
+                    {
+                        Name = "Sword Oath"
+                        Effect = Skill (fun s -> 
+                            if s.Name = "Auto Attack" then
+                                {s with Potency = s.Potency + 75; Action = ActionType.Damage (Some [addToOath])}
+                            else
+                                s
+                        )
+                        Duration = 6000
+                        Condition = Condition.LimitedUses (1, cond)
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 9
+                    }
+                {
+                    Name = "Sword Oath"
+                    Potency = 0
+                    Action = ActionType.Buff [buff; oath]
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.MP 600
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Ability
+                    Combo = None
+                    Condition = None
+                    ID = 9
+                }
+                
+            let SpiritsWithin : Skill =
+                {
+                    Name = "Spirits Within"
+                    Potency = 300
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.OffGlobalCooldown 300
+                    CostType = CostType.Free
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Ability
+                    Combo = None
+                    Condition = None
+                    ID = 10
+                }
+                
+            let TotalEclipse : Skill =
+                {
+                    Name = "Total Eclipse"
+                    Potency = 110
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 110
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = None
+                    Condition = None
+                    ID = 11
+                }
+
+            let CircleOfScorn : Skill =
+                {
+                    Name = "Circle of Scorn"
+                    Potency = 100
+                    Action = ActionType.DamageOverTime (30, 150, None)
+                    CooldownType = CooldownType.OffGlobalCooldown 250
+                    CostType = CostType.Free
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Ability
+                    Combo = None
+                    Condition = None
+                    ID = 12
+                }
+
+            let Sheltron : Skill =
+                let cond (buffs: Buff list) : bool =
+                    buffs
+                    |> List.tryFind (fun buff ->
+                        buff.Name = "Oath" && buff.Stacks >= 50
+                    )
+                    |> Option.isSome
+                let buff : Buff =
+                    let cond ((_, _, buffs): Skill * Job * Buff list) : bool =
+                        buffs
+                        |> List.map (fun b -> b.Name)
+                        |> List.contains "Shield Oath"
+                    {
+                        Name = "Blocked"
+                        Effect = Skill id
+                        Duration = 100
+                        Condition = Condition.LimitedUses (1, cond)
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 13
+                    }
+                let removeOath : Buff =
+                    {
+                        Name = "Oath"
+                        Effect = BuffDuration (fun buff ->
+                            if buff.Name = "Oath" then
+                                Some ({buff with Stacks = buff.Stacks - 50; ID = buff.ID - 50}, 0, 6000)
+                            else
+                                None
+                        )
+                        Duration = 0
+                        Condition = Condition.NotLimited
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 0
+                    }
+                {
+                    Name = "Sheltron"
+                    Potency = 100
+                    Action = ActionType.Buff [buff; removeOath]
+                    CooldownType = CooldownType.OffGlobalCooldown 50
+                    CostType = CostType.Free
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Ability
+                    Combo = None
+                    Condition = Some cond
+                    ID = 13
+                }
+
+            let GoringBlade : Skill =
+                {
+                    Name = "Goring Blade"
+                    Potency = 100
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 50
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = None
+                    Condition = None
+                    ID = 14
+                }
+
+            let RoyalAuthority : Skill =
+                {
+                    Name = "Royal Authority"
+                    Potency = 100
+                    Action = ActionType.Damage None
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.TP 60
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Weaponskill
+                    Combo = None
+                    Condition = None
+                    ID = 15
+                }
+
+            let HolySpirit : Skill =
+                let addToOath : Buff =
+                    {
+                        Name = "Oath"
+                        Effect = BuffDuration (fun buff ->
+                            if buff.Name = "Oath" then
+                                if buff.Stacks + 20 > 100 then
+                                    Some ({buff with Stacks = 100; ID = 200}, 6000, 6000)
+                                else
+                                    Some ({buff with Stacks = buff.Stacks + 20; ID = buff.ID + 20}, 6000, 6000)
+                            else
+                                None
+                        )
+                        Duration = 0
+                        Condition = Condition.NotLimited
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 100
+                    }
+                {
+                    Name = "Holy Spirit"
+                    Potency = 380
+                    Action = ActionType.Damage (Some [addToOath])
+                    CooldownType = CooldownType.GlobalCooldown
+                    CostType = CostType.MP 1440
+                    CastType = CastType.Time 15
+                    SkillType = SkillType.Spell
+                    Combo = None
+                    Condition = None
+                    ID = 16
+                }
+
+            let Requiescat : Skill =
+                let buff : Buff =
+                    {
+                        Name = "Requiescat"
+                        Effect = Skill (fun s -> 
+                            match s.SkillType with
+                            | Spell ->
+                                {s with Potency = int ((float s.Potency) * 1.2)}
+                            | _ -> 
+                                s
+                        )
+                        Duration = 120
+                        Condition = Condition.LimitedUses (2, (fun (s, j, b) ->
+                            let req =
+                                b
+                                |> List.tryFind (fun b -> b.Name = "Requiescat")
+                            match req with
+                            | None -> true
+                            | Some buff ->
+                                match buff.Condition with
+                                | NotLimited -> true
+                                | LimitedUses (i, _) ->
+                                    if i = 2 && j.MP > int ((float j.MaxMP) * 0.8) then
+                                        true
+                                    else
+                                        false
+                        ))
+                        Stacks = 0
+                        EndEffect = None
+                        ID = 17
+                    }
+                let MPcheck : Buff =
+                    {
+                        Name = "Requiescat MP Check"
+                        Effect = BuffDuration (fun b -> 
+                            if b.Name = "Requiescat" then
+                                match b.Condition with
+                                | NotLimited -> None
+                                | LimitedUses (i, _) ->
+                                    if i = 1 then
+                                        Some (b, 0, 120)
+                                    else
+                                        Some (b, 0, 0)
+                            else
+                                None
+                        )
+                        Duration = 1
+                        Condition = Condition.NotLimited
+                        Stacks = 1
+                        EndEffect = None
+                        ID = 18
+                    }
+                {
+                    Name = "Requiescat"
+                    Potency = 350
+                    Action = ActionType.Damage (Some [buff;MPcheck])
+                    CooldownType = CooldownType.OffGlobalCooldown 600
+                    CostType = CostType.Free
+                    CastType = CastType.Instant
+                    SkillType = SkillType.Ability
+                    Combo = None
+                    Condition = None
+                    ID = 17
+                }
+
+
+            let Skillset : Skill list =
+                [
+                    FastBlade
+                    FightOrFlight
+                    SavageBlade
+                    RiotBlade
+                    ShieldLob
+                    ShieldBash
+                    RageOfHalone
+                    ShieldSwipe
+                    ShieldOath
+                    SwordOath
+                    SpiritsWithin
+                    TotalEclipse
+                    CircleOfScorn
+                    Sheltron
+                    GoringBlade
+                    RoyalAuthority
+                    HolySpirit
+                    Requiescat
+                ]
 
         module Dragoon =
             let Job : Job =
@@ -196,21 +768,32 @@
                         let cond =
                             fun ((s, _, bs): Skill * Job * Buff list) ->
                                 match s.SkillType with
+                                | Spell
                                 | Weaponskill -> true
                                 | Ability -> false
                         let buff : Buff =
+                            let wbuff : Buff =
+                                {
+                                    Name = "Enhanced Wheeling Thrust"
+                                    Effect = Skill id
+                                    Duration = 100
+                                    Condition = Condition.LimitedUses (1, cond)
+                                    Stacks = 0
+                                    EndEffect = None
+                                    ID = 10
+                                }
                             {
                                 Name = "Sharper Fang and Claw"
-                                Effect = Skill id
+                                Effect = Skill (fun s ->
+                                    if s.Name = "Fang and Claw" then
+                                        {s with Action = ActionType.Damage (Some [wbuff])}
+                                    else
+                                        s
+                                )
                                 Duration = 100
                                 Condition = Condition.LimitedUses (1, cond)
                                 Stacks = 0
-                                EndEffect = Some (fun (b: Buff) ->
-                                    {b with 
-                                        Name = "Enhanced Wheeling Thrust"
-                                        Condition = Condition.LimitedUses (1, cond)
-                                        EndEffect = None}
-                                )
+                                EndEffect = None
                                 ID = 7
                             }
                         {
@@ -223,7 +806,7 @@
                     {
                         Name = "True Thrust"
                         Target = "Vorpal Thrust"
-                        Effect = (fun s -> {s with Potency = 250; Combo = Some c})
+                        Effect = (fun s -> {s with Potency = 250; Combo = Some [c]})
                         DistruptedByGCD = true
                         NotFirst = false
                     }
@@ -235,7 +818,7 @@
                     CostType = CostType.TP 60
                     CastType = CastType.Instant
                     SkillType = SkillType.Weaponskill
-                    Combo = Some combo
+                    Combo = Some [combo]
                     Condition = None
                     ID = 1
                 }
@@ -260,21 +843,38 @@
                         let cond =
                             fun ((s, _, _): Skill * Job * Buff list) ->
                                 match s.SkillType with
+                                | Spell
                                 | Weaponskill -> true
                                 | Ability -> false
                         let buff : Buff =
+                            let fcond =
+                                fun ((s, _, bs): Skill * Job * Buff list) ->
+                                    match s.SkillType with
+                                    | Spell
+                                    | Weaponskill -> true
+                                    | Ability -> false
+                            let fbuff : Buff =
+                                {
+                                    Name = "Sharper Fang and Claw"
+                                    Effect = Skill id
+                                    Duration = 100
+                                    Condition = Condition.LimitedUses (1, fcond)
+                                    Stacks = 0
+                                    EndEffect = None
+                                    ID = 7
+                                }
                             {
                                 Name = "Enhanced Wheeling Thrust"
-                                Effect = Skill id
+                                Effect = Skill (fun s ->
+                                        if s.Name = "Wheeling Thrust" then
+                                            {s with Action = ActionType.Damage (Some [fbuff])}
+                                        else
+                                            s
+                                    )
                                 Duration = 100
                                 Condition = Condition.LimitedUses (1, cond)
                                 Stacks = 0
-                                EndEffect = Some (fun (b: Buff) ->
-                                    {b with 
-                                        Name = "Sharper Fang and Claw"
-                                        Condition = Condition.LimitedUses (1, cond)
-                                        EndEffect = None}
-                                )
+                                EndEffect = None
                                 ID = 10
                             }
                         {
@@ -297,7 +897,7 @@
                     {
                         Name = "Impulse Drive"
                         Target = "Disembowel"
-                        Effect = (fun s -> {s with Potency = 240; Combo = Some combo; Action = ActionType.Damage (Some [buff])})
+                        Effect = (fun s -> {s with Potency = 240; Combo = Some [combo]; Action = ActionType.Damage (Some [buff])})
                         DistruptedByGCD = true
                         NotFirst = false
                     }
@@ -309,7 +909,7 @@
                     CostType = CostType.TP 60
                     CastType = CastType.Instant
                     SkillType = SkillType.Weaponskill
-                    Combo = Some combo
+                    Combo = Some [combo]
                     Condition = None
                     ID = 3
                 }
@@ -356,6 +956,7 @@
                 let cond = 
                     fun ((s, _, _): Skill * Job * Buff list) -> 
                         match s.SkillType with
+                        | Spell
                         | Ability -> false
                         | Weaponskill -> true
                 let buff : Buff =
@@ -364,9 +965,13 @@
                         Effect = 
                             Skill (fun s -> 
                                 match s.SkillType with
+                                | SkillType.Spell
                                 | SkillType.Ability -> s
                                 | SkillType.Weaponskill ->
-                                    {s with Potency = s.Potency * 2}
+                                    if s.Name <> "Auto Attack" then
+                                        {s with Potency = s.Potency * 2}
+                                    else
+                                        s
                             )
                         Duration = 100
                         Condition = Condition.LimitedUses (1, cond)
@@ -377,7 +982,7 @@
                 {
                     Name = "Life Surge"
                     Potency = 0
-                    Action = ActionType.Buff buff
+                    Action = ActionType.Buff [buff]
                     CooldownType = CooldownType.OffGlobalCooldown 500
                     CostType = CostType.Free
                     CastType = CastType.Instant
@@ -415,7 +1020,7 @@
                 {
                     Name = "Blood for Blood"
                     Potency = 0
-                    Action = ActionType.Buff buff
+                    Action = ActionType.Buff [buff]
                     CooldownType = CooldownType.OffGlobalCooldown 800
                     CostType = CostType.Free
                     CastType = CastType.Instant
@@ -501,7 +1106,7 @@
                         ID = 11
                     }
                 {
-                    Name = "Spineshatter Jump"
+                    Name = "Spineshatter Dive"
                     Potency = 210
                     Action = ActionType.Damage (Some [buff])
                     CooldownType = CooldownType.OffGlobalCooldown 600
@@ -545,7 +1150,7 @@
                     CostType = CostType.TP 120
                     CastType = CastType.Instant
                     SkillType = SkillType.Weaponskill
-                    Combo = Some combo
+                    Combo = Some [combo]
                     Condition = None
                     ID = 13
                 }
@@ -578,7 +1183,7 @@
                 {
                     Name = "Battle Litany"
                     Potency = 0
-                    Action = ActionType.Buff buff
+                    Action = ActionType.Buff [buff]
                     CooldownType = CooldownType.OffGlobalCooldown 1800
                     CostType = CostType.Free
                     CastType = CastType.Instant
@@ -610,9 +1215,9 @@
                         ID = 30
                     }
                 {
-                    Name = "Blood of the Dragons"
+                    Name = "Blood of the Dragon"
                     Potency = 0
-                    Action = ActionType.Buff buff
+                    Action = ActionType.Buff [buff]
                     CooldownType = CooldownType.OffGlobalCooldown 1800
                     CostType = CostType.Free
                     CastType = CastType.Instant
@@ -762,7 +1367,7 @@
                 {
                     Name = "Dragon Sight"
                     Potency = 0
-                    Action = ActionType.Buff buff
+                    Action = ActionType.Buff [buff]
                     CooldownType = CooldownType.OffGlobalCooldown 1200
                     CostType = CostType.Free
                     CastType = CastType.Instant
@@ -844,7 +1449,7 @@
                 {
                     Name = "Invigorate"
                     Potency = 0
-                    Action = ActionType.Buff buff
+                    Action = ActionType.Buff [buff]
                     CooldownType = CooldownType.OffGlobalCooldown 1200
                     CostType = CostType.Free
                     CastType = CastType.Instant
@@ -853,3 +1458,31 @@
                     Condition = None
                     ID = 24
                 }
+
+            let Skillset : Skill list = 
+                [
+                    BattleLitany
+                    BloodForBlood
+                    BloodOfTheDragon
+                    ChaosThrust
+                    Disembowel
+                    DoomSpike
+                    DragonfireDive
+                    DragonSight
+                    FangAndClaw
+                    FullThrust
+                    Geirskogul
+                    HeavyThrust
+                    ImpulseDrive
+                    Invigorate
+                    Jump
+                    LifeSurge
+                    MirageDive
+                    Nastrond
+                    PiercingTalon
+                    SonicThrust
+                    SpineshatterDive
+                    TrueThrust
+                    VorpalThrust
+                    WheelingThrust
+                ]

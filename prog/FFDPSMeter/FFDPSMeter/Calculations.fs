@@ -31,17 +31,6 @@
                             | BuffType.Skill b -> s >> b
                             | _ -> id
                         ) id
-                    let combo =
-                        match tick.ActiveCombo with
-                        | None -> id
-                        | Some (c, _) -> 
-                            match tick.ActiveSkill with
-                            | None -> id
-                            | Some s ->
-                                if c.Target = s.Name then
-                                    c.Effect
-                                else
-                                    id
 
                     let autoattack =
                         if index % 30 = 0 then
@@ -51,7 +40,7 @@
                     let activeskill =
                         match tick.ActiveSkill with
                         | None -> None
-                        | Some s -> Some <| (buffs >> debuffs >> combo) s
+                        | Some s -> Some s
 
                     let dotPotency =
                         tick.ActiveDoTs

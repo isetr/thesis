@@ -1,9 +1,177 @@
 ﻿<Window
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		Title="FF App" Height="800" Width="600"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:fsxaml="http://github.com/fsprojects/FsXaml"
+        xmlns:local="clr-namespace:App;assembly=App"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:wfi="clr-namespace:System.Windows.Forms;assembly=WindowsFormsIntegration"
+        xmlns:chartingToolkit="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
+		Title="FF App" Height="600" Width="800" WindowStartupLocation="CenterScreen" Loaded="OnLoaded" ResizeMode="NoResize"
         >
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
+    
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="70" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="120" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Header="Add">
+                <MenuItem Header="New" Command="{Binding NewSkillset}" IsEnabled="{Binding Enabled}"/>
+                <Separator />
+                <MenuItem Header="Dragoon" Command="{Binding AddDragoon}" IsEnabled="{Binding Enabled}"/>
+                <MenuItem Header="Paladin" Command="{Binding AddPaladin}" IsEnabled="{Binding Enabled}"/>
+            </MenuItem>
+            <MenuItem Header="Start" Command="{Binding MLButton}" IsEnabled="{Binding Enabled}"/>
+            <MenuItem Header="Cancel" Command="{Binding CancelGeneration}" IsEnabled="{Binding Working}"/>
+        </Menu>
+
+        <VirtualizingStackPanel Grid.Row="1" Orientation="Horizontal">
+            <Label>Generate #</Label>
+            <TextBox Text="{Binding ToGenerate}" IsEnabled="{Binding Enabled}"></TextBox>
+            <Label>Episodes</Label>
+            <TextBox Text="{Binding Episodes}" IsEnabled="{Binding Enabled}"></TextBox>
+            <Label>Duration</Label>
+            <TextBox Text="{Binding Duration}" IsEnabled="{Binding Enabled}"></TextBox>
+            <Label>Threads</Label>
+            <TextBox Text="{Binding Threads}" IsEnabled="{Binding Enabled}"></TextBox>
+            <Label>Seed</Label>
+            <TextBox Text="{Binding Seed}" IsEnabled="{Binding Enabled}"></TextBox>
+        </VirtualizingStackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden" Grid.Row="2">
+            <VirtualizingStackPanel>
+                <Label>Dragoon</Label>
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding ShowDragoon}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Width="30" Height="30" Margin="1" Command="{Binding AddSkill}" CommandParameter="{Binding ID}">
+                                <Image Source="{Binding Image}" ToolTip="{Binding Name}" />
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Label>Paladin</Label>
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding ShowPaladin}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Width="30" Height="30" Margin="1" Command="{Binding AddSkill}" CommandParameter="{Binding ID}">
+                                <Image Source="{Binding Image}" ToolTip="{Binding Name}" />
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </VirtualizingStackPanel>
+        </ScrollViewer>
+
+        <VirtualizingStackPanel Grid.Row="3">
+            <Label>Chosen skillset:</Label>
+            <ItemsControl ItemsSource="{Binding Skills}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Image Width="30" Height="30" Margin="1" Source="{Binding Image}" ToolTip="{Binding Name}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </VirtualizingStackPanel>
+
+        <VirtualizingStackPanel Grid.Row="4">
+            <Label>Result:</Label>
+            <ItemsControl ItemsSource="{Binding Result}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Image Width="30" Height="30" Margin="1" Source="{Binding Image}" ToolTip="{Binding Name}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </VirtualizingStackPanel>
+
+        <VirtualizingStackPanel Grid.Row="5" Orientation="Horizontal">
+            <chartingToolkit:Chart Width="400">
+                <chartingToolkit:AreaSeries Title="Damage" ItemsSource="{Binding ResultChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
+                    <chartingToolkit:AreaSeries.IndependentAxis>
+                        <chartingToolkit:LinearAxis Orientation="X"/>
+                    </chartingToolkit:AreaSeries.IndependentAxis>
+                    <chartingToolkit:AreaSeries.DependentRangeAxis>
+                        <chartingToolkit:LinearAxis Orientation="Y" Minimum="0" />
+                    </chartingToolkit:AreaSeries.DependentRangeAxis>
+                </chartingToolkit:AreaSeries>
+                <chartingToolkit:AreaSeries Title="DPS" ItemsSource="{Binding ResultDPSChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
+                    <chartingToolkit:AreaSeries.IndependentAxis>
+                        <chartingToolkit:LinearAxis Orientation="X"/>
+                    </chartingToolkit:AreaSeries.IndependentAxis>
+                    <chartingToolkit:AreaSeries.DependentRangeAxis>
+                        <chartingToolkit:LinearAxis Orientation="Y" Minimum="0" />
+                    </chartingToolkit:AreaSeries.DependentRangeAxis>
+                </chartingToolkit:AreaSeries>
+            </chartingToolkit:Chart>
+            <chartingToolkit:Chart Width="400">
+                <chartingToolkit:AreaSeries Title="Gens" ItemsSource="{Binding GenerationsChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
+                    <chartingToolkit:AreaSeries.IndependentAxis>
+                        <chartingToolkit:LinearAxis Orientation="X"/>
+                    </chartingToolkit:AreaSeries.IndependentAxis>
+                    <chartingToolkit:AreaSeries.DependentRangeAxis>
+                        <chartingToolkit:LinearAxis Orientation="Y" Minimum="0" />
+                    </chartingToolkit:AreaSeries.DependentRangeAxis>
+                </chartingToolkit:AreaSeries>
+            </chartingToolkit:Chart>
+        </VirtualizingStackPanel>
+
+        <StatusBar Grid.Row="6">
+            <StatusBarItem>
+                <TextBlock Text="Status: "/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding StatusText}"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="Generations: "/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding Generations}"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="Damage: "/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding TotalDamage}"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="Duration: "/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding TotalDuration}"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <ProgressBar Width="100" Height="18" Minimum="0" Maximum="100" IsIndeterminate="{Binding Working}" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

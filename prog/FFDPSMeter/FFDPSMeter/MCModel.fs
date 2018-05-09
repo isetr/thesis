@@ -1,143 +1,141 @@
 ﻿namespace FFDPSMeter
 
-    module MCModel =
-        open Model
-        open Calculations
+    //module MCModel =
+    //    open Model
+    //    open Calculations
 
-        open System.Collections.Generic
+    //    open System.Collections.Generic
 
-        type State = Tick
-        type Action = Skill
+    //    type State = Tick
+    //    type Action = Skill
 
-        let MC (job: Job) (skillSet: Skill list) (time: int) (episodes: int) (seed: int option) =
-            printf "-"
-            let random = 
-                match seed with
-                | Some s -> System.Random s
-                | None -> System.Random ()
-            let s0 = Rotation.empty job
-            let s = 
-                match s0 with
-                | Rotation (state, _) -> List.head state
-            let b =
-                let p = 1. / float skillSet.Length
-                let ss =
-                    skillSet
-                    |> List.map (fun s ->
-                        s, p
-                    )
-                dict [s, ss]
-            let pi = 
-                let p = 1. / float skillSet.Length
-                let ss =
-                    skillSet
-                    |> List.map (fun s ->
-                        s, p
-                    )
-                dict [s, ss]
-            printf "-"
-            let getAction (s: State) (pi: IDictionary<Tick, (Skill * float) list>) =
-                let rand = random.Next(0, 1000)
-                let skillset =
-                    match pi.TryGetValue s with
-                    | true, value -> value
-                    | false, _ ->
-                        let p = 1. / float skillSet.Length
-                        let ss =
-                            skillSet
-                            |> List.map (fun s ->
-                                s, p
-                            )
-                        pi.Add (s, ss)
-                        ss
-                skillset
-                |> List.fold (fun (prob, (ss: (float * float * Action) list)) (a, p) ->
-                    let ap = p * 1000.
-                    let probU = prob + ap
-                    probU, ((prob, probU, a) :: ss)
-                ) (0., [])
-                |> snd
-                |> List.find (fun (p, pU, _) ->
-                    int p < rand && rand < int pU
-                )
-                |> fun (_, _, a) -> a
+    //    let MC (job: Job) (skillSet: Skill list) (time: int) (episodes: int) (seed: int option) =
+    //        printf "-"
+    //        let random = 
+    //            match seed with
+    //            | Some s -> System.Random s
+    //            | None -> System.Random ()
+    //        let s0 = Rotation.empty job
+    //        let s = 
+    //            match s0 with
+    //            | Rotation (state, _) -> List.head state
+    //        let b =
+    //            let p = 1. / float skillSet.Length
+    //            let ss =
+    //                skillSet
+    //                |> List.map (fun s ->
+    //                    s, p
+    //                )
+    //            dict [s, ss]
+    //        let pi = 
+    //            let p = 1. / float skillSet.Length
+    //            let ss =
+    //                skillSet
+    //                |> List.map (fun s ->
+    //                    s, p
+    //                )
+    //            dict [s, ss]
+    //        printf "-"
+    //        let getAction (s: State) (pi: IDictionary<Tick, (Skill * float) list>) =
+    //            let rand = random.Next(0, 1000)
+    //            let skillset =
+    //                match pi.TryGetValue s with
+    //                | true, value -> value
+    //                | false, _ ->
+    //                    let p = 1. / float skillSet.Length
+    //                    let ss =
+    //                        skillSet
+    //                        |> List.map (fun s ->
+    //                            s, p
+    //                        )
+    //                    pi.Add (s, ss)
+    //                    ss
+    //            skillset
+    //            |> List.fold (fun (prob, (ss: (float * float * Action) list)) (a, p) ->
+    //                let ap = p * 1000.
+    //                let probU = prob + ap
+    //                probU, ((prob, probU, a) :: ss)
+    //            ) (0., [])
+    //            |> snd
+    //            |> List.find (fun (p, pU, _) ->
+    //                int p < rand && rand < int pU
+    //            )
+    //            |> fun (_, _, a) -> a
 
-            Seq.init episodes (fun n -> n + 1)
-            |> Seq.iter (fun n ->
-                let rec addToRotation (r: Rotation) =
-                    printf "-"
-                    match r with
-                    | Rotation (ticks, _) ->
-                        if ticks.Length > time then
-                            r
-                        else
-                            let last = List.last ticks
-                            addToRotation (Rotation.add (getAction last b) r)
-                let rot = addToRotation (Rotation.empty job)
-                match rot with
-                | Rotation (rotation, job) ->
-                    rotation
-                    |> List.indexed
-                    |> List.iter (fun (i, s) ->
-                        let combo =
-                            match s.ActiveCombo with
-                            | None -> "None"
-                            | Some (c, _) -> sprintf "%s to %s" c.Name c.Target
-                        match s.ActiveSkill with
-                        | None -> ()
-                        | Some s -> printf "%d:\tSkill: %20s\tPotency: %d\tCombo: %s\n" i s.Name s.Potency combo
-                    )
-                    printfn "MP: %d, TP: %d" job.MP job.TP
-                printfn "DPS: %d" (ToDPS rot false)
-            )
+    //        Seq.init episodes (fun n -> n + 1)
+    //        |> Seq.iter (fun n ->
+    //            let rec addToRotation (r: Rotation) =
+    //                printf "-"
+    //                match r with
+    //                | Rotation (ticks, _) ->
+    //                    if ticks.Length > time then
+    //                        r
+    //                    else
+    //                        let last = List.last ticks
+    //                        addToRotation (Rotation.add (getAction last b) r)
+    //            let rot = addToRotation (Rotation.empty job)
+    //            match rot with
+    //            | Rotation (rotation, job) ->
+    //                rotation
+    //                |> List.indexed
+    //                |> List.iter (fun (i, s) ->
+    //                    let combo =
+    //                        match s.ActiveCombo with
+    //                        | None -> "None"
+    //                        | Some (c, _) -> sprintf "%s to %s" c.Name c.Target
+    //                    match s.ActiveSkill with
+    //                    | None -> ()
+    //                    | Some s -> printf "%d:\tSkill: %20s\tPotency: %d\tCombo: %s\n" i s.Name s.Potency combo
+    //                )
+    //                printfn "MP: %d, TP: %d" job.MP job.TP
+    //            printfn "DPS: %d" (ToDPS rot false)
+    //        )
 
     module MCModel2 =
 
         open Model
         open Calculations
 
-        //type State = 
-        //    (int list) * (int list) * int * (int list) * (string option) * int * int
-
-        //let fromRotation (r: Rotation) : State =
-        //    match r with
-        //    | Rotation (ticks, j) ->
-        //        let last = List.last ticks
-        //        let buffs =
-        //            last.ActiveBuffs
-        //            |> List.map (fun (b, _) -> b.ID)
-        //            |> List.sort
-        //        let ogcd =
-        //            last.OGCDTimers
-        //            |> List.map (fun (b, _) -> b.ID)
-        //            |> List.sort
-        //        let dots =
-        //            last.ActiveDoTs
-        //            |> List.map (fun (b, _) -> b.ID)
-        //            |> List.sort
-        //        let combo =
-        //            last.ActiveCombo
-        //            |> Option.map (fun (c, _) -> c.Target)
-        //        let gcd = 
-        //            match last.GCDtick with
-        //            | Cooldown _ -> 0
-        //            | Available -> 1
-        //        (buffs, ogcd, gcd, dots, combo, j.TP, j.MP)
-        
-        type State = int list
+        type State = 
+            (int list) * (int list) * (int list) * (string list) * int * int
 
         let fromRotation (r: Rotation) : State =
             match r with
-            | Rotation (ticks, _) ->
-                ticks
-                |> List.choose (fun t ->
-                    match t.ActiveSkill with
-                    | None -> None
-                    | Some s -> Some s.ID
-                )
+            | Rotation (ticks, j) ->
+                let last = List.last ticks
+                let buffs =
+                    last.ActiveBuffs
+                    |> List.map (fun (b, _) -> b.ID)
+                    |> List.sort
+                let ogcd =
+                    last.OGCDTimers
+                    |> List.map (fun (b, _) -> b.ID)
+                    |> List.sort
+                let dots =
+                    last.ActiveDoTs
+                    |> List.map (fun (b, _) -> b.ID)
+                    |> List.sort
+                let combo =
+                    match last.ActiveCombo with
+                    | None -> []
+                    | Some combos -> (fst combos) |> List.map (fun c -> c.Target) |> List.sort
+                (buffs, ogcd, dots, combo, j.TP, j.MP)
+        
+        //type State = int list
+
+        //let fromRotation (r: Rotation) : State =
+        //    match r with
+        //    | Rotation (ticks, _) ->
+        //        ticks
+        //        |> List.choose (fun t ->
+        //            match t.ActiveSkill with
+        //            | None -> None
+        //            | Some s -> Some s.ID
+        //        )
 
         let toKey (s: State) : int =
-            List.length s
+            let buffs, ogcd, _, _, _, _ = s
+            buffs.Length + ogcd.Length
 
         let createRandomPolicy (n: int) =
             let ones = List.init n (fun _ -> 1. / float n)
@@ -233,8 +231,8 @@
                         let reward =
                             if newLen = len then 
                                 -50. 
-                            elif newLen >= 1800 then
-                                2000.
+                            elif newLen >= parseDuration then
+                                100.
                             else 
                                 reward
                         //printfn "%s,\t %f" skill.Name reward
@@ -269,6 +267,8 @@
                 match seed with
                 | None -> System.Random()
                 | Some s -> System.Random s
+
+            //let Q, C = Map.empty, Map.empty
                 
             let Q, C =
                 Array.Parallel.init threads (fun _ ->
@@ -417,17 +417,6 @@
                             | BuffType.Skill b -> s >> b
                             | _ -> id
                         ) id
-                    let combo =
-                        match tick.ActiveCombo with
-                        | None -> id
-                        | Some (c, _) -> 
-                            match tick.ActiveSkill with
-                            | None -> id
-                            | Some s ->
-                                if c.Target = s.Name then
-                                    c.Effect
-                                else
-                                    id
 
                     let autoattack =
                         if index % 30 = 0 then
@@ -437,7 +426,7 @@
                     let activeskill =
                         match tick.ActiveSkill with
                         | None -> None
-                        | Some s -> Some <| (buffs >> debuffs >> combo) s
+                        | Some s -> Some s
 
                     let dotPotency =
                         tick.ActiveDoTs
@@ -470,6 +459,28 @@
                 |> ignore
             file.Flush ()
             file.Close ()
+
+        let policyToSkillList (job: Job * Skill list) (behavior: State -> float list) (parseDuration: int) (seed: int option) =
+            let rotation = Rotation.empty (fst job)
+            let random =
+                match seed with
+                | None -> System.Random()
+                | Some s -> System.Random s
+            let ep = genEpisode behavior random job parseDuration
+                //Array.init 100 (fun _ -> genEpisode behavior random job parseDuration)
+                //|> Array.maxBy (fun ep ->
+                //    ep
+                //    |> List.map (fun (state, i, rew) -> List.item i (snd job), state, rew)
+                //    |> List.fold (fun s v ->
+                //        let skill, _, _ = v
+                //        Rotation.add skill s
+                //    ) rotation
+                //    |> fun rot -> (ToDamage rot false)
+                //)
+            ep
+            |> List.map (fun (_, i, _) ->
+                (snd job).Item i
+            )
 
         let runPolicy (job: Job * Skill list) (behavior: State -> float list) (parseDuration: int) (Q: Map<int, Map<State, float list>>) (seed: int option) (folder: string) =
             let startT = System.DateTime.Now

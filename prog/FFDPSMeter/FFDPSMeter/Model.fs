@@ -18,11 +18,12 @@
         type SkillType =
             | Ability
             | Weaponskill
+            | Spell
 
         type ActionType = 
             | Damage of Buff list option
             | DamageOverTime of potency:int * duration:int * Buff option
-            | Buff of Buff
+            | Buff of Buff list
             | Debuff of Buff
             | Heal of Buff option
         and BuffType =
@@ -51,7 +52,7 @@
                 CostType        : CostType
                 CastType        : CastType
                 SkillType       : SkillType
-                Combo           : Combo option
+                Combo           : Combo list option
                 Condition       : (Buff list -> bool) option
                 ID              : int
             }
@@ -77,7 +78,6 @@
             | Cooldown of int
             | Available
         
-        [<CustomEquality; NoComparison>]
         type Tick =
             {
                 ActiveBuffs         : (Buff * int) list
@@ -86,77 +86,8 @@
                 GCDtick             : GCD
                 ActiveSkill         : Skill option
                 ActiveDoTs          : (Skill * (int * int)) list
-                ActiveCombo         : (Combo * int) option
+                ActiveCombo         : (Combo list * int) option
             }
-
-            override l.Equals r =
-                match r with
-                | :? Tick as r ->
-                    let lBuffs =
-                        l.ActiveBuffs
-                        |> List.map (fun (b, _) -> b.Name)
-                        |> List.sort
-                    let rBuffs =
-                        r.ActiveBuffs
-                        |> List.map (fun (b, _) -> b.Name)
-                        |> List.sort
-                    let lOGCD = 
-                        l.OGCDTimers
-                        |> List.map (fun (s, _) -> s.Name)
-                        |> List.sort
-                    let rOGCD = 
-                        r.OGCDTimers
-                        |> List.map (fun (s, _) -> s.Name)
-                        |> List.sort
-                    let lSkill = 
-                        match l.ActiveSkill with 
-                        | Some s -> s.Name
-                        | None -> ""
-                    let rSkill = 
-                        match r.ActiveSkill with 
-                        | Some s -> s.Name
-                        | None -> ""
-                    let lDots =
-                        l.ActiveDoTs
-                        |> List.map (fun (s, _) -> s.Name)
-                        |> List.sort
-                    let rDots =
-                        r.ActiveDoTs
-                        |> List.map (fun (s, _) -> s.Name)
-                        |> List.sort
-                    let lCombo = 
-                        match l.ActiveCombo with 
-                        | Some (s, _) -> s.Name
-                        | None -> ""
-                    let rCombo = 
-                        match r.ActiveCombo with 
-                        | Some (s, _) -> s.Name
-                        | None -> ""
-                    let lGCD =
-                        match l.GCDtick with
-                        | Available -> 0
-                        | Cooldown t -> t
-                    let rGCD =
-                        match r.GCDtick with
-                        | Available -> 0
-                        | Cooldown t -> t
-
-                    lBuffs = rBuffs &&
-                    lOGCD = rOGCD &&
-                    lSkill = rSkill &&
-                    lDots = rDots &&
-                    lCombo = rCombo &&
-                    lGCD = rGCD
-                | _ -> false
-
-            override this.GetHashCode () = 
-                hash 
-                <| (
-                    this.ActiveBuffs.Length, 
-                    this.OGCDTimers.Length,
-                    this.GCDtick,
-                    this.ActiveDoTs.Length
-                )
 
         type Rotation = 
             | Rotation of (Tick list) * Job
@@ -318,6 +249,7 @@
                         let lastindex, last = ticks |> List.last
                         let job = Rotation.updateJob job lastindex last
                         
+                        let orignalSkill = skill
                         let gcd =
                             match last.GCDtick with
                             | Available -> last.GCDtick
@@ -327,10 +259,32 @@
                                 else
                                     Available
                         let skill =
-                            match last.ActiveCombo with
-                            | None -> skill
-                            | Some (c, _) -> 
-                                if c.Target = skill.Name then c.Effect skill else skill
+                            let buffs =
+                                last.ActiveBuffs
+                                |> List.fold (fun (s: Skill -> Skill) (v, _) ->
+                                    match v.Effect with
+                                    | BuffType.Skill b -> s >> b
+                                    | _ -> id
+                                ) id
+                            let debuffs =
+                                last.ActiveDebuffs
+                                |> List.fold (fun (s: Skill -> Skill) (v, _) ->
+                                    match v.Effect with
+                                    | BuffType.Skill b -> s >> b
+                                    | _ -> id
+                                ) id
+                            let combo =
+                                match last.ActiveCombo with
+                                | None -> id
+                                | Some (c, _) -> 
+                                    c
+                                    |> List.filter (fun c ->
+                                        c.Target = skill.Name
+                                    )
+                                    |> List.fold (fun s v ->
+                                        s >> v.Effect
+                                    ) id
+                            (debuffs >> buffs >> combo) skill
                         let activeCombo = 
                             match skill.Combo with
                             | Some c -> Some (c, lastindex + 1 + 100)
@@ -344,13 +298,22 @@
                                         match skill.CooldownType with
                                         | OffGlobalCooldown _ -> combo
                                         | GlobalCooldown ->
-                                            if skill.Name = c.Target then
+                                            let hasCombo =
+                                                c
+                                                |> List.filter (fun c ->
+                                                    c.Target = skill.Name
+                                                )
+                                                |> List.isEmpty
+                                            let distrupdted =
+                                                c
+                                                |> List.filter (fun c -> c.DistruptedByGCD)
+                                            if hasCombo then
                                                 Some (c, 0)
                                             else
-                                                if c.DistruptedByGCD then
+                                                if distrupdted.IsEmpty then
                                                     None
                                                 else
-                                                    combo
+                                                    Some (distrupdted, i)
                         let casttime =
                             match skill.CastType with
                             | Instant -> 10
@@ -441,7 +404,9 @@
                                         | _ -> Rotation.addToBuffList b activeBuffs lastindex
                                     ) activeBuffs
                             | ActionType.Buff b -> 
-                                match b.Effect with
+                                b
+                                |> List.fold (fun activeBuffs b ->
+                                    match b.Effect with
                                     | BuffDuration buff -> 
                                         activeBuffs
                                         |> List.map (fun (b, i) ->
@@ -454,6 +419,7 @@
                                                     (b, i + dur)
                                         )
                                     | _ -> Rotation.addToBuffList b activeBuffs lastindex
+                                ) activeBuffs
                             | _ -> activeBuffs
                         let activeDebuffs =
                             let activeDebuffs =
@@ -472,33 +438,7 @@
                                 )
                             match skill.Action with
                             | ActionType.DamageOverTime (potency, duration, _) ->
-                                let buffs =
-                                    last.ActiveBuffs
-                                    |> List.fold (fun (s: Skill -> Skill) (v, _) ->
-                                        match v.Effect with
-                                        | BuffType.Skill b -> s >> b
-                                        | _ -> id >> s
-                                    ) id
-                                let debuffs =
-                                    last.ActiveDebuffs
-                                    |> List.fold (fun (s: Skill -> Skill) (v, _) ->
-                                        match v.Effect with
-                                        | BuffType.Skill b -> s >> b
-                                        | _ -> id >> s
-                                    ) id
-                                let combo =
-                                    match last.ActiveCombo with
-                                    | None -> id
-                                    | Some (c, _) -> 
-                                        match last.ActiveSkill with
-                                        | None -> id
-                                        | Some s ->
-                                            if c.Target = s.Name then
-                                                c.Effect
-                                            else
-                                                id
-                                let skill =
-                                    (buffs >> debuffs >> combo) {skill with Potency = potency}
+                                let skill = {skill with Potency = potency}
                                 match List.tryFind (fun ((s, _): Skill * (int * int)) -> s.Name = skill.Name) activeDots with
                                 | None -> 
                                     (skill, (lastindex + 1, lastindex + 1 + duration)) :: activeDots
@@ -523,7 +463,7 @@
                                 | None -> 
                                     let ticks = ticks |> List.map snd
                                     let job, ticks = Rotation.addDummy ticks (job.Speed) job
-                                    Rotation.add skill (Rotation (ticks, job))
+                                    Rotation.add orignalSkill (Rotation (ticks, job))
                                 | Some job ->
                                     let nextTick =
                                         {
@@ -544,7 +484,7 @@
                                     let dummies = t - lastindex + 1
                                     let ticks = ticks |> List.map snd
                                     let job, ticks = Rotation.addDummy ticks dummies job
-                                    Rotation.add skill (Rotation (ticks, job))
+                                    Rotation.add orignalSkill (Rotation (ticks, job))
                                 | Available -> 
                                     addSkill
                             match skill.Condition with
@@ -557,7 +497,7 @@
                                 if tick < lastindex + 1 + job.Speed then
                                     let ticks = ticks |> List.map snd
                                     let job, ticks = Rotation.addDummy ticks (lastindex + 1 + job.Speed - tick) job
-                                    Rotation.add skill (Rotation (ticks, job))
+                                    Rotation.add orignalSkill (Rotation (ticks, job))
                                 else
                                     rotation
                                     //let ticks = ticks |> List.map snd
@@ -570,7 +510,7 @@
                                     | None -> 
                                         let ticks = ticks |> List.map snd
                                         let job, ticks = Rotation.addDummy ticks (job.Speed) job
-                                        Rotation.add skill (Rotation (ticks, job))
+                                        Rotation.add orignalSkill (Rotation (ticks, job))
                                     | Some job ->
                                         let ogcdTimers = (skill, lastindex + 1 + cd) :: ogcdTimers
                                         let nextTick =
