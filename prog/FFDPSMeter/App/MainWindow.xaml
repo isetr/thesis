@@ -26,8 +26,8 @@
             <MenuItem Header="Add">
                 <MenuItem Header="New" Command="{Binding NewSkillset}" IsEnabled="{Binding Enabled}"/>
                 <Separator />
-                <MenuItem Header="Dragoon" Command="{Binding AddDragoon}" IsEnabled="{Binding Enabled}"/>
-                <MenuItem Header="Paladin" Command="{Binding AddPaladin}" IsEnabled="{Binding Enabled}"/>
+                <MenuItem Header="Dragoon" Command="{Binding AddDragoon}" IsEnabled="{Binding Started}"/>
+                <MenuItem Header="Paladin" Command="{Binding AddPaladin}" IsEnabled="{Binding Started}"/>
             </MenuItem>
             <MenuItem Header="Start" Command="{Binding MLButton}" IsEnabled="{Binding Enabled}"/>
             <MenuItem Header="Cancel" Command="{Binding CancelGeneration}" IsEnabled="{Binding Working}"/>
@@ -35,15 +35,17 @@
 
         <VirtualizingStackPanel Grid.Row="1" Orientation="Horizontal">
             <Label>Generate #</Label>
-            <TextBox Text="{Binding ToGenerate}" IsEnabled="{Binding Enabled}"></TextBox>
+            <TextBox Text="{Binding ToGenerate}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
             <Label>Episodes</Label>
-            <TextBox Text="{Binding Episodes}" IsEnabled="{Binding Enabled}"></TextBox>
+            <TextBox Text="{Binding Episodes}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
+            <Separator/>
             <Label>Duration</Label>
-            <TextBox Text="{Binding Duration}" IsEnabled="{Binding Enabled}"></TextBox>
+            <TextBox Text="{Binding Duration}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
+            <Separator/>
             <Label>Threads</Label>
-            <TextBox Text="{Binding Threads}" IsEnabled="{Binding Enabled}"></TextBox>
-            <Label>Seed</Label>
-            <TextBox Text="{Binding Seed}" IsEnabled="{Binding Enabled}"></TextBox>
+            <TextBox Text="{Binding Threads}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBox>
+            <!--<Label>Seed</Label>
+            <TextBox Text="{Binding Seed}" IsEnabled="{Binding Enabled}"></TextBox>-->
         </VirtualizingStackPanel>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden" Grid.Row="2">

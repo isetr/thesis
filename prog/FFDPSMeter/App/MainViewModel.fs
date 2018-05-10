@@ -53,6 +53,7 @@ type MainViewModel () as this =
     let seed = this.Factory.Backing(<@ this.Seed @>, 0)
     let working = this.Factory.Backing(<@ this.Working @>, false)
     let enabled = this.Factory.Backing(<@ this.Enabled @>, true)
+    let started = this.Factory.Backing(<@ this.Started @>, true)
 
     let statusText = this.Factory.Backing(<@ this.StatusText @>, "Add something to the skillset")
     let totalDamageText = this.Factory.Backing(<@ this.TotalDamage @>, "0")
@@ -69,7 +70,7 @@ type MainViewModel () as this =
         liveResultChart.Clear()
         generationsChart.Clear()
         resultDPSChart.Clear()
-        skills.Clear()
+        //skills.Clear()
 
     let newSkillset =
         this.Factory.CommandSync(fun _ -> 
@@ -89,6 +90,7 @@ type MainViewModel () as this =
             job <- drgJob
             skillset <- drgSkills
             clear ()
+            skills.Clear()
             dragoonSkills |> Seq.iter (fun s -> skills.Add s)
         )
         
@@ -98,6 +100,7 @@ type MainViewModel () as this =
             job <- pldJob
             skillset <- pldSkills
             clear ()
+            skills.Clear()
             paladinSkills |> Seq.iter (fun s -> skills.Add s)
         )
 
@@ -129,6 +132,7 @@ type MainViewModel () as this =
 
     let startML =
         this.Factory.CommandSync(fun _ ->
+            started.Value <- false
             if not bgWorkerSet then
                 bgWorker.Dispose()
                 bgWorker <- new BackgroundWorker ()
@@ -211,6 +215,8 @@ type MainViewModel () as this =
     member __.AddPaladin = addPaladin
     member __.NewSkillset = newSkillset
     member __.CancelGeneration = cancelGeneration
+    member __.Started with get () = started.Value
+                            and set value = started.Value <- value
     member __.Working with get () = working.Value
                             and set value = working.Value <- value
     member __.Enabled with get () = enabled.Value
