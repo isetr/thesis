@@ -134,8 +134,9 @@
         //        )
 
         let toKey (s: State) : int =
-            let buffs, ogcd, _, _, _, _ = s
+            let buffs, ogcd, _, _, tp, mp = s
             buffs.Length + ogcd.Length
+            //tp + mp
 
         let createRandomPolicy (n: int) =
             let ones = List.init n (fun _ -> 1. / float n)
@@ -210,9 +211,9 @@
                         let oldDmg = ToDamage rot false
                         let dmg = ToDamage nextRot false
                         //let reward = float <| (float dmg / float newLen) - (float dmg / 1800.)
-                        let reward = float (dmg - oldDmg) / float (newLen - len)
+                        //let reward = float (dmg - oldDmg) / float (newLen - len)
                         //let reward = float newLen
-                        //let reward = float <| dmg / newLen
+                        let reward = float <| dmg / newLen
                         //let reward = float (newLen * dmg) / parseDuration
                         //let reward = if newLen > parseDuration then 1. else 0.
                         //let reward = if newLen > len then 1. else 0.
@@ -230,9 +231,9 @@
                         //let reward = 10. * float (newLen - len) + 0.1 * float (dmg - oldDmg)
                         let reward =
                             if newLen = len then 
-                                -50. 
+                                -50.
                             elif newLen >= parseDuration then
-                                100.
+                                100. + reward
                             else 
                                 reward
                         //printfn "%s,\t %f" skill.Name reward
@@ -333,8 +334,8 @@
                                     match maps.TryFind state with
                                     | Some s ->
                                         s |> List.item action
-                                    | None -> 0.
-                                | None -> 0.
+                                    | None -> W
+                                | None -> W
                             let Q = 
                                 let newQVal =
                                     match Q.TryFind len with
@@ -363,6 +364,14 @@
                                     Q.Add (len, maps.Add (state, newQVal))
                                 | None -> 
                                     Q.Add (len, Map [(state, newQVal)])
+                            //let pi = createGreedyPolicy Q nA
+                            //let piA =
+                            //    pi state
+                            //    |> List.indexed
+                            //    |> List.maxBy snd
+                            //    |> fst
+                            //if piA <> action then
+                            //    G, C, Q, W
                             let denom = 
                                 behavior state
                                 |> List.item action
@@ -467,7 +476,7 @@
                 | None -> System.Random()
                 | Some s -> System.Random s
             let ep = genEpisode behavior random job parseDuration
-                //Array.init 100 (fun _ -> genEpisode behavior random job parseDuration)
+                //Array.init episodes (fun _ -> genEpisode behavior random job parseDuration)
                 //|> Array.maxBy (fun ep ->
                 //    ep
                 //    |> List.map (fun (state, i, rew) -> List.item i (snd job), state, rew)

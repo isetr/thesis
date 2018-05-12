@@ -12,6 +12,7 @@
 doc.log
 *.out
 *.gz
+*.pyg
 *.toc
 
 # User-specific files (MonoDevelop/Xamarin Studio)

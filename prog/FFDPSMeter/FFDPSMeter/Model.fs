@@ -43,6 +43,14 @@
         and Condition =
             | NotLimited
             | LimitedUses of uses:int * contidion:(Skill * Job * Buff list -> bool)
+        and Combo =
+            {
+                Name            : string
+                Target          : string
+                Effect          : Skill -> Skill
+                DistruptedByGCD : bool
+                NotFirst        : bool
+            }
         and Skill =
             {
                 Name            : string
@@ -55,14 +63,6 @@
                 Combo           : Combo list option
                 Condition       : (Buff list -> bool) option
                 ID              : int
-            }
-        and Combo =
-            {
-                Name            : string
-                Target          : string
-                Effect          : Skill -> Skill
-                DistruptedByGCD : bool
-                NotFirst        : bool
             }
         and Job =
             {
@@ -243,7 +243,7 @@
                 match rotation with
                 | Rotation (ticks, job) ->
                     match ticks with
-                    | [] -> failwith "How o.o"
+                    | [] -> failwith "Failed to add skill to the rotation"
                     | ticks ->
                         let ticks = ticks |> List.indexed
                         let lastindex, last = ticks |> List.last
@@ -264,14 +264,14 @@
                                 |> List.fold (fun (s: Skill -> Skill) (v, _) ->
                                     match v.Effect with
                                     | BuffType.Skill b -> s >> b
-                                    | _ -> id
+                                    | _ -> s
                                 ) id
                             let debuffs =
                                 last.ActiveDebuffs
                                 |> List.fold (fun (s: Skill -> Skill) (v, _) ->
                                     match v.Effect with
                                     | BuffType.Skill b -> s >> b
-                                    | _ -> id
+                                    | _ -> s
                                 ) id
                             let combo =
                                 match last.ActiveCombo with
@@ -300,20 +300,20 @@
                                         | GlobalCooldown ->
                                             let hasCombo =
                                                 c
-                                                |> List.filter (fun c ->
+                                                |> List.exists (fun c ->
                                                     c.Target = skill.Name
                                                 )
-                                                |> List.isEmpty
-                                            let distrupdted =
+                                                |> not
+                                            let distrupted =
                                                 c
                                                 |> List.filter (fun c -> c.DistruptedByGCD)
                                             if hasCombo then
                                                 Some (c, 0)
                                             else
-                                                if distrupdted.IsEmpty then
+                                                if distrupted.IsEmpty then
                                                     None
                                                 else
-                                                    Some (distrupdted, i)
+                                                    Some (distrupted, i)
                         let casttime =
                             match skill.CastType with
                             | Instant -> 10

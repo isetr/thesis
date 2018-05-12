@@ -35,15 +35,17 @@
 
         <VirtualizingStackPanel Grid.Row="1" Orientation="Horizontal">
             <Label>Generate #</Label>
-            <TextBox Text="{Binding ToGenerate}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
+            <TextBox Text="{Binding Path=ToGenerate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
             <Label>Episodes</Label>
-            <TextBox Text="{Binding Episodes}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
+            <TextBox Text="{Binding Path=Episodes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
             <Separator/>
             <Label>Duration</Label>
-            <TextBox Text="{Binding Duration}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
+            <TextBox Text="{Binding Path=Duration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
             <Separator/>
             <Label>Threads</Label>
-            <TextBox Text="{Binding Threads}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBox>
+            <TextBox Text="{Binding Path=Threads, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBox>
+            <Label>Discount</Label>
+            <TextBox Text="{Binding Path=DiscountFactor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Enabled}" MinWidth="32" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBox>
             <!--<Label>Seed</Label>
             <TextBox Text="{Binding Seed}" IsEnabled="{Binding Enabled}"></TextBox>-->
         </VirtualizingStackPanel>
@@ -117,7 +119,7 @@
 
         <VirtualizingStackPanel Grid.Row="5" Orientation="Horizontal">
             <chartingToolkit:Chart Width="400">
-                <chartingToolkit:AreaSeries Title="Damage" ItemsSource="{Binding ResultChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
+                <chartingToolkit:AreaSeries Title="DPS" ItemsSource="{Binding ResultDPSChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
                     <chartingToolkit:AreaSeries.IndependentAxis>
                         <chartingToolkit:LinearAxis Orientation="X"/>
                     </chartingToolkit:AreaSeries.IndependentAxis>
@@ -125,7 +127,7 @@
                         <chartingToolkit:LinearAxis Orientation="Y" Minimum="0" />
                     </chartingToolkit:AreaSeries.DependentRangeAxis>
                 </chartingToolkit:AreaSeries>
-                <chartingToolkit:AreaSeries Title="DPS" ItemsSource="{Binding ResultDPSChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
+                <chartingToolkit:AreaSeries Title="Damage" ItemsSource="{Binding ResultChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
                     <chartingToolkit:AreaSeries.IndependentAxis>
                         <chartingToolkit:LinearAxis Orientation="X"/>
                     </chartingToolkit:AreaSeries.IndependentAxis>
@@ -135,7 +137,15 @@
                 </chartingToolkit:AreaSeries>
             </chartingToolkit:Chart>
             <chartingToolkit:Chart Width="400">
-                <chartingToolkit:AreaSeries Title="Gens" ItemsSource="{Binding GenerationsChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
+                <chartingToolkit:AreaSeries Title="Duration" ItemsSource="{Binding GenerationDurationsChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
+                    <chartingToolkit:AreaSeries.IndependentAxis>
+                        <chartingToolkit:LinearAxis Orientation="X"/>
+                    </chartingToolkit:AreaSeries.IndependentAxis>
+                    <chartingToolkit:AreaSeries.DependentRangeAxis>
+                        <chartingToolkit:LinearAxis Orientation="Y" Minimum="0" Maximum="{Binding Duration}" />
+                    </chartingToolkit:AreaSeries.DependentRangeAxis>
+                </chartingToolkit:AreaSeries>
+                <chartingToolkit:AreaSeries Title="Damage" ItemsSource="{Binding GenerationsChart}" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
                     <chartingToolkit:AreaSeries.IndependentAxis>
                         <chartingToolkit:LinearAxis Orientation="X"/>
                     </chartingToolkit:AreaSeries.IndependentAxis>

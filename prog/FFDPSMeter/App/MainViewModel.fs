@@ -37,6 +37,7 @@ type MainViewModel () as this =
     let liveResultChart = ObservableCollection<KeyValuePair<int, int>> ()
     let resultDPSChart = ObservableCollection<KeyValuePair<int, int>> ()
     let generationsChart = ObservableCollection<KeyValuePair<int, int>> ()
+    let generationDurationsChart = ObservableCollection<KeyValuePair<int, int>> ()
 
     let mutable bgWorkerSet = false
     let mutable Q = Map.empty
@@ -51,6 +52,7 @@ type MainViewModel () as this =
     let duration = this.Factory.Backing(<@ this.Duration @>, 1800)
     let threads = this.Factory.Backing(<@ this.Threads @>, 5)
     let seed = this.Factory.Backing(<@ this.Seed @>, 0)
+    let discountFactor = this.Factory.Backing(<@ this.DiscountFactor @>, 0.9)
     let working = this.Factory.Backing(<@ this.Working @>, false)
     let enabled = this.Factory.Backing(<@ this.Enabled @>, true)
     let started = this.Factory.Backing(<@ this.Started @>, true)
@@ -69,8 +71,11 @@ type MainViewModel () as this =
         generations.Value <- 0
         liveResultChart.Clear()
         generationsChart.Clear()
+        generationDurationsChart.Clear()
         resultDPSChart.Clear()
-        //skills.Clear()
+        result.Clear()
+        skills.Clear()
+        started.Value <- true
 
     let newSkillset =
         this.Factory.CommandSync(fun _ -> 
@@ -104,97 +109,94 @@ type MainViewModel () as this =
             paladinSkills |> Seq.iter (fun s -> skills.Add s)
         )
 
-    let doML () =
-        if skills.Count > 0 then
-            let skillset = skills |> Seq.map (fun s -> s.ToMLModel skillset) |> List.ofSeq
-            if generations.Value = 0 then
-                policy <- createRandomPolicy skillset.Length
-            let newQ, newC, greedyPolicy = mcControlImportanceSampling (job, skillset) (duration.Value) (episodes.Value) policy Q C 1. (if seed.Value = 0 then None else Some seed.Value) (threads.Value)
-            Q <- newQ
-            C <- newC
-            policy <- createEpsilonGreedyPolicy Q (skillset.Length) (1. / (5. * System.Math.Log (float generations.Value + 5.)))
-            let skillist = policyToSkillList (job, skillset) greedyPolicy duration.Value (if seed.Value = 0 then None else Some seed.Value)
-            let res = 
-                skillist
-                |> List.mapi (fun i s -> SkillView (s, i))
+    let doML =
+        DoWorkEventHandler (fun o e -> 
+            working.Value <- true
+            enabled.Value <- false
+            Seq.init toGenerate.Value id
+            |> Seq.iter (fun _ ->
+                if skills.Count > 0 && not <| bgWorker.CancellationPending then
+                    let skillset = skills |> Seq.map (fun s -> s.ToMLModel skillset) |> List.ofSeq
+                    if generations.Value = 0 then
+                        policy <- createRandomPolicy skillset.Length
+                    let newQ, newC, greedyPolicy = mcControlImportanceSampling (job, skillset) (duration.Value) (episodes.Value) policy Q C (discountFactor.Value) (if seed.Value = 0 then None else Some seed.Value) (threads.Value)
+                    Q <- newQ
+                    C <- newC
+                    policy <- createEpsilonGreedyPolicy Q (skillset.Length) (1. / (5. * System.Math.Log (float generations.Value + 5.)))
+                    let skillist = policyToSkillList (job, skillset) greedyPolicy duration.Value (if seed.Value = 0 then None else Some seed.Value)
+                    let res = 
+                        skillist
+                        |> List.mapi (fun i s -> SkillView (s, i))
+                    let rot = FFDPSMeter.Calculations.ToRotation skillist job
+                    let dmg = FFDPSMeter.Calculations.ToDamage rot false
+                    let time = 
+                        match rot with | Rotation (ticks, _) -> ticks.Length
+                    let resChart, dpsChart, _ =
+                        res
+                        |> Seq.map (fun s -> s.ToMLModel skillset)
+                        |> Seq.fold (fun (resChart, dpsChart, rot) value ->
+                            let rot = Rotation.add value rot
+                            let time =
+                                match rot with
+                                | Rotation (ticks, _) -> ticks.Length
+                            let dmg = FFDPSMeter.Calculations.ToDamage rot false
+                            (time, dmg) :: resChart, (time, if time > 0 then dmg / (time / 10) else 0) :: dpsChart, rot
+                        ) ([],[],Rotation.empty job)
+                    bgWorker.ReportProgress(0, (resChart, dpsChart, time, res, dmg) :> obj)
+            )
+        )
+        
+    let reportProgress =
+        ProgressChangedEventHandler(fun o e -> 
+            let resChart, dpsChart, time, res, dmg = e.UserState :?> ((int * int) list * (int * int) list * int * SkillView list * int)
+            generations.Value <- generations.Value + 1
+            totalDamageText.Value <- string dmg
+            totalDurationText.Value <- string time
+            result.Clear()
             res |> Seq.iter (fun s -> result.Add s)
-            let rot = FFDPSMeter.Calculations.ToRotation skillist job
-            bgWorker.ReportProgress(0, rot :> obj)
-        else
-            MessageBox.Show "Please choose a skillset" |> ignore
+            resultDPSChart.Clear()
+            liveResultChart.Clear()
+            resChart
+            |> List.iter (fun (k, v) -> liveResultChart.Add(KeyValuePair<int, int> (k, v)))
+            dpsChart
+            |> List.iter (fun (k, v) -> resultDPSChart.Add(KeyValuePair<int, int> (k, v)))
+            generationsChart.Add(KeyValuePair<int, int> (generations.Value, dmg))
+            generationDurationsChart.Add(KeyValuePair<int, int> (generations.Value, time))
+        )
 
-    let uiContext = SynchronizationContext.Current
-    let rec callML (n: int) =
-        if n > 0 then
-            uiContext.Send((fun e -> doML()), 1)
-            //doML ()
-            callML (n - 1)
+    let workerCompleted =
+        RunWorkerCompletedEventHandler(fun _ _ -> 
+            working.Value <- false
+            enabled.Value <- true
+        )
 
     let startML =
         this.Factory.CommandSync(fun _ ->
-            started.Value <- false
-            if not bgWorkerSet then
-                bgWorker.Dispose()
-                bgWorker <- new BackgroundWorker ()
-                bgWorkerSet <- true
-                bgWorker.WorkerReportsProgress <- true
-                bgWorker.DoWork.Add (fun e -> 
-                    working.Value <- true
-                    enabled.Value <- false
-                    Seq.init toGenerate.Value id
-                    |> Seq.iter(fun _ ->
-                        if skills.Count > 0 && not <| bgWorker.CancellationPending then
-                            let skillset = skills |> Seq.map (fun s -> s.ToMLModel skillset) |> List.ofSeq
-                            if generations.Value = 0 then
-                                policy <- createRandomPolicy skillset.Length
-                            let newQ, newC, greedyPolicy = mcControlImportanceSampling (job, skillset) (duration.Value) (episodes.Value) policy Q C 1. (if seed.Value = 0 then None else Some seed.Value) (threads.Value)
-                            Q <- newQ
-                            C <- newC
-                            policy <- createEpsilonGreedyPolicy Q (skillset.Length) (1. / (5. * System.Math.Log (float generations.Value + 5.)))
-                            let skillist = policyToSkillList (job, skillset) greedyPolicy duration.Value (if seed.Value = 0 then None else Some seed.Value)
-                            let res = 
-                                skillist
-                                |> List.mapi (fun i s -> SkillView (s, i))
-                            let rot = FFDPSMeter.Calculations.ToRotation skillist job
-                            let dmg = FFDPSMeter.Calculations.ToDamage rot false
-                            let time = 
-                                match rot with | Rotation (ticks, _) -> ticks.Length
-                            let resChart, dpsChart, _ =
-                                result
-                                |> Seq.map (fun s -> s.ToMLModel skillset)
-                                |> Seq.fold (fun (resChart, dpsChart, rot) value ->
-                                    let rot = Rotation.add value rot
-                                    let time =
-                                        match rot with
-                                        | Rotation (ticks, _) -> ticks.Length / 10
-                                    let dmg = FFDPSMeter.Calculations.ToDamage rot false
-                                    (time, dmg) :: resChart, (time, dmg / time) :: dpsChart, rot
-                                ) ([],[],Rotation.empty job)
-                            bgWorker.ReportProgress(0, (resChart, dpsChart, time, res, dmg) :> obj)
-                    )
-                )
-                bgWorker.ProgressChanged.Add (fun e -> 
-                    let resChart, dpsChart, time, res, dmg = e.UserState :?> ((int * int) list * (int * int) list * int * SkillView list * int)
-                    generations.Value <- generations.Value + 1
-                    totalDamageText.Value <- string dmg
-                    totalDurationText.Value <- string time
-                    result.Clear()
-                    res |> Seq.iter (fun s -> result.Add s)
-                    resultDPSChart.Clear()
-                    liveResultChart.Clear()
-                    resChart
-                    |> List.iter (fun (k, v) -> liveResultChart.Add(KeyValuePair<int, int> (k, v)))
-                    dpsChart
-                    |> List.iter (fun (k, v) -> resultDPSChart.Add(KeyValuePair<int, int> (k, v)))
-                    generationsChart.Add(KeyValuePair<int, int> (generations.Value, dmg))
-                )
-                bgWorker.RunWorkerCompleted.Add (fun _ -> 
-                    working.Value <- false
-                    enabled.Value <- true
-                )
-                bgWorker.WorkerSupportsCancellation <- true
-            bgWorker.RunWorkerAsync ()
-
+            let genNumVal, epVal, durVal, threadVal, discVal =
+                toGenerate.Value > 0, episodes.Value > 0, duration.Value > 0, threads.Value > 0, not (discountFactor.Value < 0. || discountFactor.Value > 1.)
+            if not genNumVal then
+                MessageBox.Show "Generation # must be positive!" |> ignore
+            if not epVal then
+                MessageBox.Show "Episodes must be positive!" |> ignore
+            if not durVal then
+                MessageBox.Show "Duration must be positive!" |> ignore
+            if not threadVal then
+                MessageBox.Show "Threads must be positive!" |> ignore
+            if not discVal then
+                MessageBox.Show "Discount factor must be between 0 and 1!" |> ignore
+            if genNumVal && epVal && durVal && threadVal && discVal then
+                if not bgWorkerSet && skills.Count > 0 then
+                    bgWorker.DoWork.RemoveHandler doML
+                    bgWorker.ProgressChanged.RemoveHandler reportProgress
+                    bgWorker.RunWorkerCompleted.RemoveHandler workerCompleted
+                    started.Value <- false
+                    bgWorkerSet <- true
+                    bgWorker.WorkerReportsProgress <- true
+                    bgWorker.DoWork.AddHandler doML
+                    bgWorker.ProgressChanged.AddHandler reportProgress
+                    bgWorker.RunWorkerCompleted.AddHandler workerCompleted
+                    bgWorker.WorkerSupportsCancellation <- true
+                bgWorker.RunWorkerAsync ()
         )
 
     let cancelGeneration =
@@ -205,6 +207,7 @@ type MainViewModel () as this =
     member __.ResultChart = liveResultChart
     member __.ResultDPSChart = resultDPSChart
     member __.GenerationsChart = generationsChart
+    member __.GenerationDurationsChart = generationDurationsChart
     member __.ShowDragoon = dragoonSkills
     member __.ShowPaladin = paladinSkills
     member __.AddSkill = addSkill
@@ -215,6 +218,8 @@ type MainViewModel () as this =
     member __.AddPaladin = addPaladin
     member __.NewSkillset = newSkillset
     member __.CancelGeneration = cancelGeneration
+    member __.DiscountFactor with get () = discountFactor.Value
+                                and set value = discountFactor.Value <- value
     member __.Started with get () = started.Value
                             and set value = started.Value <- value
     member __.Working with get () = working.Value
