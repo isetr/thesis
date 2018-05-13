@@ -49,7 +49,6 @@
                 Target          : string
                 Effect          : Skill -> Skill
                 DistruptedByGCD : bool
-                NotFirst        : bool
             }
         and Skill =
             {

@@ -115,7 +115,6 @@
                         Target = "Combo 2"
                         Effect = (fun (s: Skill) -> {s with Potency = int ((float s.Potency) * 1.1)})
                         DistruptedByGCD = true
-                        NotFirst = false
                     }
                 {
                     Name            = "Combo 1"
@@ -137,7 +136,6 @@
                         Target = "Combo 3"
                         Effect = (fun (s: Skill) -> {s with Potency = s.Potency * 2})
                         DistruptedByGCD = true
-                        NotFirst = false
                     }
                 {
                     Name            = "Combo 2"
@@ -215,7 +213,6 @@
                             Target = "Goring Blade"
                             Effect = (fun s -> {s with Potency = 250; Action = ActionType.DamageOverTime (60, 210, None)})
                             DistruptedByGCD = true
-                            NotFirst = false
                         }
                     let comboRoyal =
                         {
@@ -223,14 +220,12 @@
                             Target = "Royal Authority"
                             Effect = (fun s -> {s with Potency = 360})
                             DistruptedByGCD = true
-                            NotFirst = false
                         }
                     {
                         Name = "Fast Blade"
                         Target = "Riot Blade"
                         Effect = (fun s -> {s with Potency = 240; Action = ActionType.Damage (Some [buff]); Combo = Some [comboGoring; comboRoyal]})
                         DistruptedByGCD = true
-                        NotFirst = false
                     }
                 let comboSavage : Combo = 
                     let combo : Combo = 
@@ -239,14 +234,12 @@
                             Target = "Rage of Halone"
                             Effect = (fun s -> {s with Potency = 270})
                             DistruptedByGCD = true
-                            NotFirst = false
                         }
                     {
                         Name = "Fast Blade"
                         Target = "Savage Blade"
                         Effect = (fun s -> {s with Potency = 210; Combo = Some [combo]})
                         DistruptedByGCD = true
-                        NotFirst = false
                     }
                 {
                     Name = "Fast Blade"
@@ -801,14 +794,12 @@
                             Target = "Full Thrust"
                             Effect = (fun s -> {s with Potency = 450; Action = ActionType.Damage (Some [buff])})
                             DistruptedByGCD = true
-                            NotFirst = true
                         }
                     {
                         Name = "True Thrust"
                         Target = "Vorpal Thrust"
                         Effect = (fun s -> {s with Potency = 250; Combo = Some [c]})
                         DistruptedByGCD = true
-                        NotFirst = false
                     }
                 {
                     Name = "True Thrust"
@@ -882,7 +873,6 @@
                             Target = "Chaos Thrust"
                             Effect = (fun s -> {s with Potency = 280; Action = ActionType.DamageOverTime (35, 300, Some buff)})
                             DistruptedByGCD = true
-                            NotFirst = true
                         }
                     let buff : Buff =
                         {
@@ -899,7 +889,6 @@
                         Target = "Disembowel"
                         Effect = (fun s -> {s with Potency = 240; Combo = Some [combo]; Action = ActionType.Damage (Some [buff])})
                         DistruptedByGCD = true
-                        NotFirst = false
                     }
                 {
                     Name = "Impulse Drive"
@@ -1140,7 +1129,6 @@
                         Target = "Sonic Thrust"
                         Effect = (fun (s: Skill) -> {s with Potency = 180; Action = ActionType.Damage (Some [buff])})
                         DistruptedByGCD = true
-                        NotFirst = true
                     }
                 {
                     Name = "Doom Spike"

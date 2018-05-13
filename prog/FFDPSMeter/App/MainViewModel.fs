@@ -23,12 +23,12 @@ type MainViewModel () as this =
     let drgJob, drgSkills, drg =
         let skills =
             FFDPSMeter.Skills.Dragoon.Skillset
-            |> List.mapi (fun i s -> SkillView (s, i))
+            |> List.map (fun s -> SkillView s)
         FFDPSMeter.Skills.Dragoon.Job, FFDPSMeter.Skills.Dragoon.Skillset, skills
     let pldJob, pldSkills, pld =
         let skills =
             FFDPSMeter.Skills.Paladin.Skillset
-            |> List.mapi (fun i s -> SkillView (s, i))
+            |> List.map (fun s -> SkillView s)
         FFDPSMeter.Skills.Paladin.Job, FFDPSMeter.Skills.Paladin.Skillset, skills
     let dragoonSkills = ObservableCollection<SkillView> (drg)
     let paladinSkills = ObservableCollection<SkillView> (pld)
@@ -83,12 +83,6 @@ type MainViewModel () as this =
             clear ()
         )
 
-    let addSkill = 
-        this.Factory.CommandSyncParam(fun (s: int) -> 
-            MessageBox.Show (string s) |> ignore
-            statusText.Value <- string s
-        )
-
     let addDragoon = 
         this.Factory.CommandSync(fun _ -> 
             statusText.Value <- "Dragoon added to the skillset"
@@ -126,7 +120,7 @@ type MainViewModel () as this =
                     let skillist = policyToSkillList (job, skillset) greedyPolicy duration.Value (if seed.Value = 0 then None else Some seed.Value)
                     let res = 
                         skillist
-                        |> List.mapi (fun i s -> SkillView (s, i))
+                        |> List.mapi (fun i s -> SkillView s)
                     let rot = FFDPSMeter.Calculations.ToRotation skillist job
                     let dmg = FFDPSMeter.Calculations.ToDamage rot false
                     let time = 
@@ -210,7 +204,6 @@ type MainViewModel () as this =
     member __.GenerationDurationsChart = generationDurationsChart
     member __.ShowDragoon = dragoonSkills
     member __.ShowPaladin = paladinSkills
-    member __.AddSkill = addSkill
     member __.Skills = skills
     member __.Result = result
     member __.MLButton = startML

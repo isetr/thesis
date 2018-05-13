@@ -38,7 +38,7 @@ mutable, if, then, else, cloud, async, static, use, abstract, interface, inherit
  keywordstyle=\color{bluekeywords},
  % new keyword colors
  classoffset=1,
- morekeywords={int, string, List, GCD, Tick, Rotation, BuffType, Condition, Buff, float, Map, bool, list, option, Skill, Combo, Job, Buff, ActionType, CooldownType, CostType, CastType, SkillType},
+ morekeywords={int, string, List, State, GCD, Tick, Rotation, BuffType, Condition, Buff, float, Map, bool, list, option, Skill, Combo, Job, Buff, ActionType, CooldownType, CostType, CastType, SkillType},
  keywordstyle=\color{cyantypes},
  classoffset=0,
  sensitive=true,
@@ -130,11 +130,11 @@ mutable, if, then, else, cloud, async, static, use, abstract, interface, inherit
 \section{Bevezető}
 
 Legfőbb célom a szakdolgozattal a gépi tanulás mélyebb megértése, tanulása egy olyan példán keresztül, amely előfordulhat problémaként a való életben is.
-\newline
+
 A probléma, amivel itt foglalkozunk kellően bonyolult ahhoz, hogy a megoldásához gépi tanulást kelljen alkalmazni és megoldása ne legyen triviális egy egyszerű algoritmussal.
-\newline
+
 Ahhoz, hogy a feladat több legyen, mint egy egyszerű út keresés, minden lépés hatással van a környezetére, illetve a környezettől függően egy-egy lépés hatása, értéke változhat.
-\newline
+
 Erre egy kellő nehézségű probléma a Final Fantasy XIV harcrendszerének szimulálása, majd ebben a szimulációban való tanulás.
 
 \pagebreak
@@ -174,32 +174,30 @@ Egy képesség leírásához hét tulajdonság szükséges:
 \end{description}
 
 A karakter tulajdonságai és képességeinek listája alapján egy adott képesség sorozatból készíthető egy szimuláció, amely megadja, hogy a sorozatot hány tizedmásodperc végrehajtani, illetve végrehajtás után ennek mekkora a teljes sebzési értéke.
-\newline
+
 Fontos, hogy a szimuláció bármely pontján tudjuk, hogy mi a játékos pontos állapota: Erőforrásainak, globális időzítőjének, képességeinak saját időzítőjének állapota, az aktív hatások, illetve ha van, akkor a Combo álltal meghatározott következő képesség.
-\newline
+
 Ez az állapot megfelel annak, amit a játékos játék közben a képernyőn láthatna.
 
 \subsubsection{Gépi tanulás}
 
 A feladat ebben a szimulációban egy olyan képesség sorozat keresése, amely eléri a felhasználó álltal megadott időt, és ezalatt az idő alatt minél hatékonyabb legyen, azaz a legnagyobb sebzés elérésére törekszik.
-\newline
+
 A probléma tér elég nagy ahhoz, hogy egy egyszerű kereső algoritmus futási ideje túl nagy legyen. Ennek megoldásához megerősítéses tanulást használ a program.
-\newline
+
 Ehhez szükséges, hogy a játék állapotáról egy kellően pontos képet kapjunk, erre szolgál a játék szimulációjából tudható képszerű adat. Ezt az adatot állapotnak, a képességeket pedig akcióknak használhatjuk fel.
 
 \subsubsection{Grafikus felület}
 
 Szükséges egy egyszerű grafikus felület, amely megkönnyíti a program használatát, átláthatóságát. A képességek sorozatának egy megjelenítését, a gépi tanulás eredményének grafikus feldolgozását.
-\newline
-Az algoritmus eredményessége jól bemutatható néhány egyszerű grafikonon.
 
-\pagebreak
+Az algoritmus eredményessége jól bemutatható néhány egyszerű grafikonon, például a tudás alapján egy sebzés-idő arányokat mutató grafikon, illetve egy, amely az elmúlt generációk tudását jelöli.
 
 \subsection{Módszerek}
 
 A feladat megoldása funkcionális programozással történik.
 
-\subsubsection{Játék model}
+\subsubsection{Játék modell}
 
 Az említett két fő elemet (Karakterek és Képességek) megfelelő típusokkal felvesszük, majd egy-egy tetszőleges karaktert a képességeivel együtt már egyszerűen előállíthatunk.
 Miután kellő adat birtokában vagyunk, a képességekből összeállíthatunk egy sorozatot, amit szimulálni szeretnénk.
@@ -214,9 +212,9 @@ A játék harcrendszerének szimulációja három lépésben történik.
 
 A megfelelő algoritmus választásához több tényezőt is figyelembe kell venni. A játék harcrendszerének teljes működése kellően bonyolult, így a működést kihasználó algoritmusok használata bonyolult, ha lehetséges. 
 Az akciók értéke az állapottól függ, illetve az akciók változtathatják az állapotot, emiatt az a feladat nem vezethető vissza egy egyszerű többkarú rabló problémára sem.
-\newline
+
 A probléma megoldásához Monte-Carlo-módszer használható. Az algoritmusnak nincs szüksége a háttérben működő szimuláció pontos leírására, elég ha tudunk adni egy pontos képet az állapotról, illetve az adott állapotban választott akciók értékéről.
-\newline
+
 A szimulációt olyan módon működik, hogy megfelelő képet tudjon adni az állapotról, az akció értéke pedig megadható az képesség sebzésének függvényében.
 
 \subsubsection{Grafikus felület}
@@ -236,8 +234,6 @@ Quad-Core 2.3 Ghz processzor, 2 GB RAM
 \paragraph{Software követelmény:} 
 
 Microsoft .NET Framework 4.6.1
-
-\pagebreak
 
 \subsection{A program használata}
 
@@ -269,7 +265,7 @@ Mielőtt elindíthatnánk a tanulást, választanunk kell egyet a megadott karak
 	\label{fig:skilllist}
 \end{figure}
 
-Ha megtaláltuk a megfelelő listát, akkor az Add menüpontban (\ref{fig:addmenu}) választhatjuk ki a szükséges listát név alapján. Fontos, hogy ilyenkor még szabadon cserélhetjük a karaktert, ez a menüpont Start-ra kattintás után nem lesz előrhető. (Kivéve a New gomb)
+Ha megtaláltuk a megfelelő listát, akkor az Add menüpontban (\ref{fig:addmenu}) választhatjuk ki a szükséges listát név alapján. Választás után szabadon cserélhetjük a listákat. A New gombra kattintva a programot alaphelyzetbe állíthatjuk.
 
 \begin{figure}[H]
 	\begin{center}
@@ -302,10 +298,11 @@ Indítás előtt lehetőségünk van néhány beállítás változtatására (\r
 A beállítások sorra:
 
 \begin{description}[align=right,labelwidth=3cm]
-	 \item [Generate] A kívánt generációk számát adhatjuk meg
-	 \item [Episodes] Generációnként létrehozott szimulációk száma
-	 \item [Duration] Szimulációk hossza tizedmásodpercben
-	 \item [Threads] Párhuzamosítás során használható magok száma
+	 \item [Generate] A kívánt generációk számát adhatjuk meg (Értéke: 1..)
+	 \item [Episodes] Generációnként létrehozott szimulációk száma (Értéke: 1..)
+	 \item [Duration] Szimulációk hossza tizedmásodpercben (Értéke: 1..)
+	 \item [Threads] Párhuzamosítás során használható magok száma (Értéke: 1..)
+	 \item [Discount] Ez a szám jelöli egy-egy akció értékének hatásának arányát az előtte lévő akciókra (Értéke: 0.0 .. 1.0)
 \end{description}
 
 Amennyiben a beállításokat megfelelőnek találjuk, a Start gomb (\ref{fig:startgen}) lenyomásával elindítható a beállított számú generációk generálása. 
@@ -336,8 +333,6 @@ Az eredményről három féle információt kapunk.
 	\item [Bal grafikon] A Result-ban szereplő képesség sorozat szimulálása során kapott sebzés értékek másodpercre osztott értékei. Kék színnel és Damage névvel jelölt terület mutatja az adott másodpercben elért teljes sebzést. Piros színnel és DPS névvel jelölt terület mutatja az adott másodpercben elért sebzés és idő hányadosát.
 	\item [Jobb grafikon] Nyomon követhetjük minden generáció tudásának sebzés értékét
 \end{description}
-
-Amennyiben újra szeretnénk kezdeni a tanulás folyamatát, az Add menüpont alatt (\ref{fig:addmenu}) található egy New gomb, amivel alaphelyzetre állíthatjuk a programot. Ilyenkor a kiválasztott képesség lista nem változik, ennek változtatásához a programot újra kell indítani.
 
 \section{Fejlesztői dokumentáció}
 
@@ -379,7 +374,7 @@ Ennek meghatározása a képességek számával arányosan exponenciálisan nő,
 
 \subsection{Módszerek}
 
-\subsubsection{Játék model}
+\subsubsection{Játék modell}
 
 A játék modellezéséhez szükséges a két alaptípus: Karakter és Képesség. Ezeket egy-egy a leírásnak megfelelő típussal könnyen le is írhatjuk.
 
@@ -453,7 +448,6 @@ and Combo =
 	Target          : string
 	Effect          : Skill -> Skill
 	DistruptedByGCD : bool
-	NotFirst        : bool
 }
 \end{lstlisting}
 
@@ -587,7 +581,7 @@ let ToDamage (rotation: Rotation) : int =
 
 A választott algoritmus az Off-Policy Monte Carlo módszer az optimális $\pi \approx \pi_*$ stratégia eléréséhez.
 \newline
-Az eredeti algoritmus ehhez a következő: \vspace{1cm}
+Az eredeti algoritmus ehhez (forrás: [1]) a következő: \vspace{1cm}
 
 \noindent\fbox{
 	\begin{minipage}{\textwidth}
@@ -658,7 +652,7 @@ Az algoritmus megvalósításához szükséges néhány változtatás. A haszná
 }
 \vspace{1.5em}
 
-Ezek alapján az algoritmus megfeleltethető a következő függvénynek: 
+A fenti típusok használata segítségével az algoritmus átírható egy annak megfelelő, funkcionális szemlélettel előállított függvényre. Ciklusok helyett foldl, illetve foldr műveletek használhatóak. Ahhoz, hogy a módosítások ne vesszenek el, mindent, amit az eredeti függvény változókban tárol, a fold függvények állapotában kell tárolnunk. A függvény kimenete az algoritmus álltal előállított Q, C függvények, illetve az ezekből előállítható mohó stratégia. A fenti algoritmus a $\pi$ mohó stratégiát lépésenként állítja elő, ezt az alábbi függvényben csak a legvégén tesszük meg.
 
 \vspace{1cm}
 \noindent\fbox{
@@ -722,9 +716,9 @@ Az itt található GenerateEpisode feladata az adott stratégia használatával 
 \vspace{1cm}
 \noindent\fbox{
 	\begin{minipage}{\textwidth}
-		Random $: \mathbb{R}^* \rightarrow \mathbb{N}$
+		Random $: \mathbb{R}^* \rightarrow \mathcal{A}$
 
-		ToSkill $: \mathbb{N} \rightarrow Skill$
+		ToSkill $: \mathcal{A} \rightarrow Skill$
 		
 		Add $: Skill \times Rotation \rightarrow Rotation$
 
@@ -782,7 +776,7 @@ Ezek használatával a szimuláció már egyszerűen létrehozható az alábbi m
 
 		$\quad\quad\quad$(state, reward, finished, rotation)
 
-		$\quad\quad$Generate rot s finished (Ep + (S, A, r))
+		$\quad\quad$Generate rot s l (Ep + (S, A, r))
 
 		$\quad$Generate EmptyRotation (FromRotation EmptyRotation) False []
 	\end{minipage}
@@ -821,20 +815,599 @@ Egy generációs algoritmust ezek alapján a következő éppen fogalmazhatunk m
 }
 \vspace{1.5 em}
 
-
-
 \subsubsection{Grafikus felület}
+
+Grafikus felületet WPF segítségével könnyen adhatunk a számolások fölé. Szerkezetében MVVM architektúrát használunk, ahol a Model a játék modellje, illetve a gépi tanulás algoritmusai. View egy egyszerűbb ablakból áll, melyhez tartozik a számolásokat kezelő ViewModel. 
+
+A felhasználónak lehetősége van a programból kilépni, beállításokat állítani (\pageref{fig:options}. oldal: \ref{fig:options}). A tanítás indítása előtt szükséges egy karakter választása (\pageref{fig:skilllist}. oldal: \ref{fig:skilllist}). Ekkor az indítás elérhető válik. Indítást követően a program autómatikusan elkezdi generálni a beállításokban megadott számú és tuladonságú generációkat. Ez a folyamat bármikor megszakítható.
+
+Minden generáció előállítása után a felület megjeleníti az adott generáció tudását. A tanult stratégia alapján létrehozunk egy képesség sorozatot, a továbbiakban ennek tulajdonságait jelenítjük meg. Ezt három féle módon tesszük meg:
+
+\begin{enumerate}
+	\item A sorozat elemeit kilistázzuk a megfelelő képekkel
+	\item Egy grafikonon ábrázoljuk a sorozat minden állapotában elért sebzés értékét, illetve annak idővel vett hányadosát.
+	\item Egy másik grafikonon vezetjük az elmúlt generációk sebzés, illetve idő értékét
+\end{enumerate}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{usecase}
+	\end{center}
+	\caption{A grafikus felület Use-Case diagrammja}
+	\label{fig:usecase}
+\end{figure}
+
+Mivel a számítások idő és erőforrás igénye magas lehet, ezeket egy másik, háttérben futó szálon indítjuk el. Ezt egy BackgroundWorker segítségével valósítjuk meg. Minden generáció előállítása végén ez a szál jelet küld a grafikus felületet kezelő szálnak, illetve átadja a szükséges kiírandó információkat. Ekkor a grafikus felület kirajzolja a képernyőre a megfelelő új adatokat, a háttér szál tovább számolja az újabb generációkat (amennyiben ezekre még igény van). A háttér szál futása közben a beállítások mezői, illetve a leállítás gombjának kivételével a gombok le vannak tiltva, így a felhasználó nem tud beleszólni az éppen futó számolás alapvető beállításaiba.
 
 \subsection{Szerkezet}
 
 \subsubsection{Külső függőségek}
 
+A program két fő részre oszlik: Model (játék és gépi tanulás számítások), illetve Grafikus felület.
+Közös követelmény az F\# fordító, a Microsoft.FSharp könyvtárak.
+
+A program Model része további külső függőségekre nem támaszkodik.
+
+A grafikus felület működéséhez szükséges az F\# és WPF közötti átjáráshoz:
+
+\begin{enumerate}
+	\item FsXaml.Wpf - XAML fájlok kezeléséhez F\# kódból
+	\item FSharp.Desktop.UI, FSharp.ViewModel.Core - MVVM architektúrát segítő könyvtárak
+	\item System.Windows.Interactivity.WPF - Reaktív felülethez szükséges könyvtár
+	\item System.Windows.Controls.DataVisualization.Toolkit - Grafikonok rajzolása
+	\item Rx-Core, Rx-Interfaces, Rx-Linq, Rx-Main, Rx-PlatformServices - További könyvtárak reaktív felülethez
+\end{enumerate}
+
 \subsubsection{Adatszerkezetek}
+
+\paragraph{Játék modell}
+
+A játék modelljének megvalósításához szükséges fő típusok: 
+
+\begin{enumerate}
+	\item Skill - Képesség
+	\item Job - Karakter
+	\item Rotation - Szimuláció
+\end{enumerate}
+
+Ezek megfelelő pontosságú leírásához szükség van további típusokra.
+
+\begin{lstlisting}
+type CooldownType =
+| GlobalCooldown
+| OffGlobalCooldown of int
+
+type CostType =
+| Free
+| MP of int
+| TP of int
+
+type CastType =
+| Instant
+| Time of int
+
+type SkillType =
+| Ability
+| Weaponskill
+| Spell
+
+type ActionType = 
+| Damage of Buff list option
+| DamageOverTime of potency:int * duration:int * Buff option
+| Buff of Buff list
+| Debuff of Buff
+| Heal of Buff option
+and BuffType =
+| Job of (Job -> Job)
+| Skill of (Skill -> Skill)
+| BuffDuration of (Buff -> (Buff * int * int) option)
+and Buff =
+{
+	Name        : string
+	Effect      : BuffType
+	Duration    : int
+	Condition   : Condition
+	Stacks      : int
+	EndEffect   : (Buff -> Buff) option
+	ID          : int
+}
+and Condition =
+| NotLimited
+| LimitedUses of uses:int * contidion:(Skill * Job * Buff list -> bool)
+and Combo =
+{
+	Name            : string
+	Target          : string
+	Effect          : Skill -> Skill
+	DistruptedByGCD : bool
+}
+and Skill =
+{
+	Name            : string
+	Potency         : int
+	Action          : ActionType
+	CooldownType    : CooldownType
+	CostType        : CostType
+	CastType        : CastType
+	SkillType       : SkillType
+	Combo           : Combo list option
+	Condition       : (Buff list -> bool) option
+	ID              : int
+}
+and Job =
+{
+	Name        : string
+	Speed       : int
+	AutoAttack  : Skill
+	MaxMP       : int
+	MP          : int
+	TP          : int
+}
+
+type GCD =
+| Cooldown of int
+| Available
+
+type Tick =
+{
+	ActiveBuffs         : (Buff * int) list
+	ActiveDebuffs       : (Buff * int) list
+	OGCDTimers          : (Skill * int) list
+	GCDtick             : GCD
+	ActiveSkill         : Skill option
+	ActiveDoTs          : (Skill * (int * int)) list
+	ActiveCombo         : (Combo list * int) option
+}
+
+type Rotation = 
+| Rotation of (Tick list) * Job
+\end{lstlisting}
+
+\paragraph{Gépi tanulás}
+
+A gépi tanuláshoz egy további típusra van szükség. A State típus jelöli az állapotot, amit a szimuláció egy pontjából kapunk megfigyelés után:
+
+\begin{lstlisting}
+type State = 
+(int list) * (int list) * (int list) * (string list) * int * int
+\end{lstlisting}
+
+Megfigyelés a következő képpen történik: Lekérdezzük az aktuális Tick adatait, majd ezeket a gyorsabb számolás érdekében egyszerűbb, de egyértelmű típusokkal reprezentáljuk.
+Ahol lehetséges egy teljes bonyolult típus helyett csak a hozzá tartozó ID értéket tároljuk, ha ez nem létezik, akkor a nevét. Az erőforrások értékét átalakítás nélkül tárolhatjuk.
+
+\begin{lstlisting}
+let fromRotation (r: Rotation) : State =
+	match r with
+	| Rotation (ticks, j) ->
+		let last = List.last ticks
+		let buffs =
+			last.ActiveBuffs
+			|> List.map (fun (b, _) -> b.ID)
+			|> List.sort
+		let ogcd =
+			last.OGCDTimers
+			|> List.map (fun (b, _) -> b.ID)
+			|> List.sort
+		let dots =
+			last.ActiveDoTs
+			|> List.map (fun (b, _) -> b.ID)
+			|> List.sort
+		let combo =
+			match last.ActiveCombo with
+			| None -> []
+			| Some combos -> (fst combos) |> List.map (fun c -> c.Target) |> List.sort
+		(buffs, ogcd, dots, combo, j.TP, j.MP)
+\end{lstlisting}
+
+További hatékonyság növelés érdekében az (Állapot $\rightarrow$ Értékek) tárolását kettő szintes Map típusban valósítjuk meg.
+Ez az Állapot (State) bonyolult típus a gyors összehasonlításhoz, de ezen segíthetünk, ha egy hash függvény alapján más-más Map szerkezetekben tároljuk őket. 
+Erre a célra egy megfelelő hash függvény (a legtöbbet változó) első két lista hosszának összege:
+
+\begin{lstlisting}
+let toKey (s: State) : int =
+	let buffs, ogcd, _, _, _, _ = s
+	buffs.Length + ogcd.Length
+\end{lstlisting}
+
+\paragraph{Grafikus felület}
+
+Szükséges a képességek kezeléséhez egy megfelelő View Model. Ezt valósítja meg a SkillView típus:
+
+\begin{lstlisting}
+type SkillView (s: FFDPSMeter.Model.Skill, place: int) =
+    member this.Name = s.Name
+    member this.Potency = s.Potency
+    member this.ID = s.ID
+    member this.Image = "/Resources/Skills/" + (s.Name.Replace(" ", "")) + ".png"
+	member this.Place = place
+
+	member this.ToMLModel (s: FFDPSMeter.Model.Skill list) =
+		s
+		|> List.find (fun skill -> skill.ID = this.ID)
+\end{lstlisting}
+
+A reaktív felület elérése érdekében a ViewModel-ben szereplő adatok ObservableCollection-ben találhatóak.
 
 \subsubsection{Modulok}
 
-\subsubsection{Képességek}
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{viewuml}
+	\end{center}
+	\caption{Modulok kapcsolata}
+	\label{fig:viewuml}
+\end{figure}
+
+A modulok helyes együttműködését az App biztosítja. Az egyetlen ablak felületet a MainWindow valósítja meg, illetve az ehhez tartozó MainViewModel ().
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{viewmodel}
+	\end{center}
+	\caption{View Model felépítése}
+	\label{fig:viewmodel}
+\end{figure}
+
+\subsubsection{Karakterek bővítése}
+
+További képességek, karakterek hozzáadása a típusrendszer megszorításaival egyszerűen megoldható.
+
+Egy karaktert az átláthatóság kedvéért egy saját modulba rendezünk, ekkor a modul neve legyen a karakter neve.
+
+\paragraph{Job} Első lépésként létre kell hozni a karakter típusával (Job) magát a karaktert, ahol a következő értékeket kell megadni:
+
+\begin{lstlisting}
+type Job =
+	{
+		Name        : string
+		Speed       : int
+		AutoAttack  : Skill
+		MaxMP       : int
+		MP          : int
+		TP          : int
+	}
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [Name] A karakter neve
+	\item [Speed] Gyorsasága tizedmásodpercben
+	\item [AutoAttack] Alapvető támadás (Skill), amit autómatikusan Speed időközönként alkalmaz
+	\item [MaxMP] Magic Points maximális értéke
+	\item [MP, TP] MP, illetve TP kezdő értéke (TP maximális értéke mindig 1000)
+\end{description}
+
+\paragraph{Skill} Képességek megadásához szükséges ismerni a Skill típust is:
+
+\begin{lstlisting}
+type Skill =
+	{
+		Name            : string
+		Potency         : int
+		Action          : ActionType
+		CooldownType    : CooldownType
+		CostType        : CostType
+		CastType        : CastType
+		SkillType       : SkillType
+		Combo           : Combo list option
+		Condition       : (Buff list -> bool) option
+		ID              : int
+	}
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [Name] A képesség neve
+	\item [Potency] Sebzési értéke
+	\item [Action] Akció típusa
+	\item [CooldownType] Időzítő típusa
+	\item [CostType] Erőforrás típusa
+	\item [CastType] Használatához szükséges idő
+	\item [SkillType] Képesség típusa
+	\item [Combo] Lehetséges Combo listája
+	\item [Condition] Használat feltétele
+	\item [ID] Képesség egyéni száma
+\end{description}
+
+Ez a típus több másik típusra is támaszkodik, a típus teljes megértéséhez szükséges ezen típusok ismerete is.
+
+\subparagraph{ActionType} 
+
+Képesség akció típusa szerint más-más hatással lehet a szimulációra.
+
+\begin{lstlisting}
+type ActionType = 
+| Damage of Buff list option
+| DamageOverTime of potency:int * duration:int * Buff option
+| Buff of Buff list
+| Debuff of Buff
+| Heal of Buff option
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [Damage] Egyszerű sebzés, rendelkezhet további hatásokkal (Buff)
+	\item [DamageOverTime] Egyszerű sebzés mellett adott ideig időközönkénti sebzést is okozhat, rendelkezhet további hatásokkal (Buff)
+	\item [Buff] Egyszerű hatások (Buff) hozzáadása
+	\item [Debuff] Hasonló az előző Buff típushoz, de ez negatív hatásokat tartalmaz
+	\item [Heal] Karakter életének növelése (jelenlegi szimulációban ezzel nem foglalkozunk)
+\end{description}
+
+\subparagraph{Buff}
+
+Az előző típus leírásához szükséges a Buff típus ismerete is. Ez felelős egy-egy hatás megvalósításáért.
+
+\begin{lstlisting}
+type Buff =
+	{
+		Name        : string
+		Effect      : BuffType
+		Duration    : int
+		Condition   : Condition
+		Stacks      : int
+		EndEffect   : (Buff -> Buff) option
+		ID          : int
+	}
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [Name] A hatás neve
+	\item [Effect] Hatás típusa szerint különböző dolgokat változtathat meg
+	\item [Duration] Hatás időtartama
+	\item [Condition] Feltétel a hatás időtartamára
+	\item [Stacks] Egy-egy hatásnál lehetőség van belső számláló használatára
+	\item [EndEffect] Lehetőség az időtartam végén, vagy feltétel sérülés esetén átalakítani a hatást
+	\item [ID] Egyéni azonosító szám
+\end{description}
+
+Ehhez továbbá szükséges az alábbi két típus:
+
+\begin{lstlisting}
+type BuffType =
+| Job of (Job -> Job)
+| Skill of (Skill -> Skill)
+| BuffDuration of (Buff -> (Buff * int * int) option)
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [Job] Karakterre vonatkozó módosítások
+	\item [Skill] Képességre vonatkozó módosítások
+	\item [BuffDuration] Másik hatásra, vagy annak időtartamára vonatkozó módosítások (Ennek eredménye az új hatás, az időtartam növelésének mértéke, illetve a maximális időtartam)
+\end{description}
+
+\begin{lstlisting}
+and Condition =
+| NotLimited
+| LimitedUses of uses:int * contidion:(Skill * Job * Buff list -> bool)
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [NotLimited] Nincs feltétel
+	\item [LimitedUses] Megadható egy feltétel függvény, illetve egy számláló, ami egyel csökken, ha a feltétel igaz. Amennyiben a számláló eléri a nullát, a hatásnak vége van
+\end{description}
+
+\paragraph{CooldownType}
+
+Képességek időzítőjük szerint két csoportba sorolhatóak: globális, illetve saját időzítővel rendelkező képességek.
+
+\begin{lstlisting}
+type CooldownType =
+| GlobalCooldown
+| OffGlobalCooldown of int
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=3.5cm]
+	\item [GlobalCooldown] Globális időzítő
+	\item [OffGlobalCooldown] Saját időzítő és annak mértéke tizedmásodpercben
+\end{description}
+
+\subparagraph{CostType}
+
+Erőforrás használata alapján három csoport létezik: ingyenes, MP és TP.
+
+\begin{lstlisting}
+type CostType =
+| Free
+| MP of int
+| TP of int
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [Free] Ingyenes
+	\item [MP] Magic Points használata és annak mértéke
+	\item [TP] Tactical Points használata és annak mértéke
+\end{description}
+
+\subparagraph{CastType}
+
+Egy képesség használata időt vesz igénybe. Ez alapján két csoport létezik: azonnali használat, vagy várakozni kell a használata előtt.
+
+\begin{lstlisting}
+type CastType =
+| Instant
+| Time of int
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [Instant] Azonnali használat (1 másodpercet vesz igénybe)
+	\item [Time] Adott tizedmásodperc várakozás a képesség használata előtt
+\end{description}
+
+\subparagraph{SkillType}
+
+Képességeket három csoportba lehet sorolni típusuk szerint: tehetség, fegyver alapú, vagy varázslat.
+
+\begin{lstlisting}
+type SkillType =
+| Ability
+| Weaponskill
+| Spell
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=2.5cm]
+	\item [Ability] Tehetség
+	\item [Weaponskill] Fegyver alapú
+	\item [Spell] Varázslat
+\end{description}
+
+\subparagraph{Combo}
+
+Képességek adott sorrendben használata esetén változtathatunk a következő képesség tulajdonságain. Ezt valósítja meg a Combo:
+
+\begin{lstlisting}
+type Combo =
+	{
+		Name            : string
+		Target          : string
+		Effect          : Skill -> Skill
+		DistruptedByGCD : bool
+	}
+\end{lstlisting}
+
+\begin{description}[align=left,labelwidth=3cm]
+	\item [Name] Combo neve
+	\item [Target] A sorrendben következő képesség neve
+	\item [Effect] Target-ben szereplő képesség módosítása
+	\item [DistruptedByGCD] Ha az értéke igaz, minde globális időzítővel rendelkező képesség megszakítja a Combo-t
+\end{description}
+
+\paragraph{Saját karakter befejezése}
+
+A típusok megértése után már mindent tudunk egy új karakter megírásához:
+	
+\begin{lstlisting}
+module UjKarakter =
+	let Karakter : Job =
+		let AutoAttack : Skill = 
+			{
+				Name = "Auto Attack"
+				Potency = 72
+				Action = ActionType.Damage None
+				CooldownType = CooldownType.OffGlobalCooldown 30
+				CostType = CostType.Free
+				CastType = CastType.Instant
+				SkillType = SkillType.Weaponskill
+				Combo = None
+				Condition = None
+				ID = 0
+			}
+		{
+			Name        = "Uj Karakter"
+			Speed       = 25
+			AutoAttack  = AutoAttack
+			MaxMP       = 5000
+			MP          = 5000
+			TP          = 1000
+		}
+
+	let Combo1 : Skill =
+		let combo : Combo =
+			{
+				Name = "Combo 1"
+				Target = "Combo 2"
+				Effect = (fun (s: Skill) -> {s with Potency = int ((float s.Potency) * 1.1)})
+				DistruptedByGCD = true
+			}
+		{
+			Name            = "Combo 1"
+			Potency         = 40
+			Action          = ActionType.Damage None
+			CooldownType    = CooldownType.GlobalCooldown
+			CostType        = CostType.TP 100
+			CastType        = CastType.Instant
+			SkillType       = SkillType.Weaponskill
+			Combo           = Some [combo]
+			Condition       = None
+			ID = 1
+		}
+
+	let Combo2 : Skill =
+		let buff =
+			{
+				Name = "Buff"
+				Effect = Skill (fun (s: Skill) -> {s with Potency = s.Potency + 50)})
+				Duration = 150
+				Condition = Condition.NotLimited
+				Stacks = 0
+				EndEffect = None
+				ID = 2
+			}
+		{
+			Name            = "Combo 2"
+			Potency         = 70
+			Action          = ActionType.Damage (Some [buff])
+			CooldownType    = CooldownType.GlobalCooldown
+			CostType        = CostType.MP 500
+			CastType        = CastType.Time 150
+			SkillType       = SkillType.Spell
+			Combo           = None
+			Condition       = None
+			ID = 2
+		}
+
+	let Skillset : Skill =
+		[
+			Combo1
+			Combo2
+		]
+\end{lstlisting}
+
+Ekkor az UjKarakter.Karakter, illetve az UjKarakter.Skillset értékekkel már könnyedén hozhatunk létre új szimulációkat.
 
 \subsection{Tesztelés}
+
+A program tesztelése a gépi tanulás sajátosságai miatt nehéz. Az algoritmusok alapja a véletlenszerű szám generálás, illetve egy valószínűség szerinti akció választás. A végleges algoritmus megengedi, hogy belső paramétereit futás közben is változtathassuk, így ezek hatékonyságának tesztelése lehetséges.
+
+\paragraph{Reward} Nehéz kérdés a jutalom függvény választása az adott akciókhoz. Jelenleg a jutalom az akció álltal létrehozott állapot sebzés értékének és idejének hányadosa. ezzel elérhető, hogy az algortimus egy stablis sebzés/másodperc arányra törekedjen. A büntetés feltétele és mértéke is kérdéses ilyenkor. A jelenlegi jutalom-büntetés rendszer egy működő, bár nem a legoptimálisabb rendszer. Ennek teszteléséhez további kutatás szükséges.
+
+\paragraph{Discount Factor} Az algoritmusban egy-egy akció értékének összegzésénél jelen van egy $\gamma$ szorzó. Ez felelős azért, hogy ha egy szimuláció végtelen hosszú, akkor is egy konvergens sorozatot kapjunk az értékekből. Véges sorozat esetében ezzel az értékkel adhatjuk meg, hogy egy-egy akció értéke mennyire legyen hatással az előtte lévő akciók értékére. $\gamma$ otimális értéke is kérdéses lehet.
+
+\subparagraph{$\gamma = 0.9$}
+
+Amikor $\gamma$ értéke közel van egyhez, látható, hogy az algoritmus sok változtatást nem végez a már megtanult lépéseken. Amikor egy látszólag jó útra tér, annak értéke magas. Ahogy látható az ábrán (\ref{fig:19gamma1400gen400ep1800dur}) a tudása hullámokban növekszik, amíg el nem ér egy stabil állapotot, ahol elkezdődik a nagyobb felfedezés.
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{19gamma1400gen400ep1800dur}
+	\end{center}
+	\caption{Generációk grafikonja ($\gamma = 0.9$, 1400 generáció, 400 episode/generáció, 180 másodperc)}
+	\label{fig:19gamma1400gen400ep1800dur}
+\end{figure}
+
+\subparagraph{$\gamma = 0.1$}
+
+Ha $\gamma$ értéke kicsi, egy-egy akció értéke szinte csak a közvetlen előtte lévő akció értékére van hatással. Ilyenkor a generációk grafikonja jelentősen változik (\ref{fig:01gamma800gen500ep1800dur}). 
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{01gamma800gen500ep1800dur}
+	\end{center}
+	\caption{Generációk grafikonja ($\gamma = 0.1$, 800 generáció, 500 episode/generáció, 180 másodperc)}
+	\label{fig:01gamma800gen500ep1800dur}
+\end{figure}
+
+\paragraph{Episodes}
+
+Meggondolandó a generációnkénti szimulációk generálásának száma is. Túl kevés esetén (\ref{fig:200gen10ep}) az $\varepsilon$-mohó startégia felfedézésére nem adatik elég lehetőség. Túl sok esetén (\ref{fig:200gen1000ep}) a futás ideje és a program memória igénye megnő. Mivel a stratégia, amivel létrehozzuk a szimulációkat csak generációváltás alkalmával frissül, a tanulás folyamata jelentős mértékkel nem gyorsul. 
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{200gen10ep}
+	\end{center}
+	\caption{Generációk grafikonja ($\gamma = 0.9$, 200 generáció, 10 episode/generáció, 180 másodperc)}
+	\label{fig:200gen10ep}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{200gen1000ep}
+	\end{center}
+	\caption{Generációk grafikonja ($\gamma = 0.9$, 200 generáció, 1000 episode/generáció, 180 másodperc)}
+	\label{fig:200gen1000ep}
+\end{figure}
+
+
+\pagebreak
+
+\section{Irodalomjegyzék}
+
+[1] Richard S. Sutton and Andrew G. Barto: Reinforcement Learning: An Introduction, The MIT Press, 2018, [528], ISBN-978-0-262-19398-6
 
 \end{document}
